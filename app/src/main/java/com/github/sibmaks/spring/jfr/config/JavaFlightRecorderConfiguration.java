@@ -1,10 +1,12 @@
 package com.github.sibmaks.spring.jfr.config;
 
-import com.github.sibmaks.spring.jfr.JavaFlightRecorderBeanPostProcessor;
-import com.github.sibmaks.spring.jfr.OnClassConditional;
+import com.github.sibmaks.spring.jfr.JavaFlightRecorderConditional;
+import com.github.sibmaks.spring.jfr.JavaFlightRecorderProperty;
+import com.github.sibmaks.spring.jfr.bean.JavaFlightRecorderBeanPostProcessor;
 import com.github.sibmaks.spring.jfr.controller.ControllerJavaFlightRecorderAspect;
 import com.github.sibmaks.spring.jfr.controller.rest.RestControllerJavaFlightRecorderAspect;
 import com.github.sibmaks.spring.jfr.jpa.JpaRepositoryJavaFlightRecorderAspect;
+import com.github.sibmaks.spring.jfr.scheduler.SchedulerJavaFlightRecorderAspect;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,25 +20,76 @@ import org.springframework.context.annotation.Configuration;
 public class JavaFlightRecorderConfiguration {
 
     @Bean
-    public static JavaFlightRecorderBeanPostProcessor beanPostProcessor() {
+    @JavaFlightRecorderConditional(
+            properties = {
+                    @JavaFlightRecorderProperty(
+                            key = "spring.jfr.instrumentation.beans-creation.enabled",
+                            value = "true",
+                            matchIfMissing = true
+                    )
+            }
+    )
+    public static JavaFlightRecorderBeanPostProcessor javaFlightRecorderBeanPostProcessor() {
         return new JavaFlightRecorderBeanPostProcessor();
     }
 
     @Bean
+    @JavaFlightRecorderConditional(
+            properties = {
+                    @JavaFlightRecorderProperty(
+                            key = "spring.jfr.instrumentation.jpa-repository.enabled",
+                            value = "true",
+                            matchIfMissing = true
+                    )
+            }
+    )
     public static JpaRepositoryJavaFlightRecorderAspect jpaRepositoryJfrAspect() {
         return new JpaRepositoryJavaFlightRecorderAspect();
     }
 
     @Bean
-    @OnClassConditional("org.springframework.stereotype.Controller")
+    @JavaFlightRecorderConditional(
+            requiredClasses = "org.springframework.stereotype.Controller",
+            properties = {
+                    @JavaFlightRecorderProperty(
+                            key = "spring.jfr.instrumentation.controller.enabled",
+                            value = "true",
+                            matchIfMissing = true
+                    )
+            }
+    )
     public static ControllerJavaFlightRecorderAspect controllerJfrAspect() {
         return new ControllerJavaFlightRecorderAspect();
     }
 
     @Bean
-    @OnClassConditional("org.springframework.web.bind.annotation.RestController")
+    @JavaFlightRecorderConditional(
+            requiredClasses = "org.springframework.web.bind.annotation.RestController",
+            properties = {
+                    @JavaFlightRecorderProperty(
+                            key = "spring.jfr.instrumentation.rest-controller.enabled",
+                            value = "true",
+                            matchIfMissing = true
+                    )
+            }
+    )
     public static RestControllerJavaFlightRecorderAspect restControllerJfrAspect() {
         return new RestControllerJavaFlightRecorderAspect();
+    }
+
+    @Bean
+    @JavaFlightRecorderConditional(
+            requiredClasses = "org.springframework.scheduling.annotation.Scheduled",
+            properties = {
+                    @JavaFlightRecorderProperty(
+                            key = "spring.jfr.instrumentation.scheduler.enabled",
+                            value = "true",
+                            matchIfMissing = true
+                    )
+            }
+    )
+    public static SchedulerJavaFlightRecorderAspect schedulerJfrAspect() {
+        return new SchedulerJavaFlightRecorderAspect();
     }
 
 }

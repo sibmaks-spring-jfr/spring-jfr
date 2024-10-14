@@ -7,7 +7,9 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Conditional(OnClassCondition.class)
-public @interface OnClassConditional {
-    String value();
+@Conditional(JavaFlightRecorderCondition.class)
+public @interface JavaFlightRecorderConditional {
+    String[] requiredClasses() default {};
+
+    JavaFlightRecorderProperty[] properties() default {};
 }

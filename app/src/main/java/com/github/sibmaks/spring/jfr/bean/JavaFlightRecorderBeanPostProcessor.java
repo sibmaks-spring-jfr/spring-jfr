@@ -1,4 +1,4 @@
-package com.github.sibmaks.spring.jfr;
+package com.github.sibmaks.spring.jfr.bean;
 
 import com.github.sibmaks.spring.jfr.event.BeanRegisteredEvent;
 import org.springframework.beans.BeansException;

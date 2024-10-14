@@ -20,7 +20,6 @@ public class RestControllerJavaFlightRecorderAspect {
 
     @Pointcut("@within(restController) && execution(* *(..))")
     public void restControllerMethods(RestController restController) {
-        // Pointcut to capture all methods in classes annotated with @RestController
     }
 
     @Around(value = "restControllerMethods(restController)", argNames = "joinPoint,restController")
@@ -34,7 +33,7 @@ public class RestControllerJavaFlightRecorderAspect {
             method = rq.getMethod();
         }
         var event = new RestControllerInvocationEvent(
-                joinPoint.getSignature().toShortString(),
+                joinPoint.getSignature().toString(),
                 method,
                 url
         );

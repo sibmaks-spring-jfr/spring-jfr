@@ -11,12 +11,13 @@ public class JpaRepositoryJavaFlightRecorderAspect {
 
     @Pointcut("execution(* org.springframework.data.jpa.repository.JpaRepository+.*(..))")
     public void jpaRepositoryMethods() {
-        // Pointcut to capture all methods in classes that implement JpaRepository
     }
 
     @Around("jpaRepositoryMethods()")
     public Object traceJpaRepository(ProceedingJoinPoint joinPoint) throws Throwable {
-        var event = new JpaEventInvocationEvent(joinPoint.getSignature().toShortString());
+        var event = new JpaEventInvocationEvent(
+                joinPoint.getSignature().toString()
+        );
 
         event.begin();
         try {
