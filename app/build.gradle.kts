@@ -1,3 +1,6 @@
+import java.text.SimpleDateFormat
+import java.util.*
+
 plugins {
     java
     jacoco
@@ -46,4 +49,65 @@ java {
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+}
+
+tasks.jar {
+    from("LICENSE") {
+        rename { "${it}_${project.property("project_name")}" }
+    }
+    manifest {
+        attributes(
+            mapOf(
+                "Specification-Group" to project.group,
+                "Specification-Title" to project.name,
+                "Specification-Version" to project.version,
+                "Specification-Timestamp" to SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(Date()),
+                "Timestamp" to System.currentTimeMillis(),
+                "Built-On-Java" to "${System.getProperty("java.vm.version")} (${System.getProperty("java.vm.vendor")})"
+            )
+        )
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+            pom {
+                packaging = "jar"
+                url = "https://github.com/sibmaks/spring-jfr"
+
+                licenses {
+                    license {
+                        name.set("The MIT License (MIT)")
+                        url.set("https://www.mit.edu/~amini/LICENSE.md")
+                    }
+                }
+
+                scm {
+                    connection.set("scm:https://github.com/sibmaks/spring-jfr.git")
+                    developerConnection.set("scm:git:ssh://github.com/sibmaks")
+                    url.set("https://github.com/sibmaks/spring-jfr")
+                }
+
+                developers {
+                    developer {
+                        id.set("sibmaks")
+                        name.set("Maksim Drobyshev")
+                        email.set("sibmaks@vk.com")
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/sibmaks/spring-jfr")
+            credentials {
+                username = project.findProperty("gpr.user")?.toString() ?: System.getenv("GITHUB_ACTOR")
+                password = project.findProperty("gpr.key")?.toString() ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
 }
