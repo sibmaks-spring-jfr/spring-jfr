@@ -76,6 +76,7 @@ publishing {
             pom {
                 packaging = "jar"
                 url = "https://github.com/sibmaks/spring-jfr"
+                artifactId = project.property("project_name").toString()
 
                 licenses {
                     license {
