@@ -2,6 +2,7 @@ package com.github.sibmaks.spring.jfr.config;
 
 import com.github.sibmaks.spring.jfr.JavaFlightRecorderConditional;
 import com.github.sibmaks.spring.jfr.JavaFlightRecorderProperty;
+import com.github.sibmaks.spring.jfr.async.AsyncJavaFlightRecorderAspect;
 import com.github.sibmaks.spring.jfr.bean.JavaFlightRecorderBeanPostProcessor;
 import com.github.sibmaks.spring.jfr.controller.ControllerJavaFlightRecorderAspect;
 import com.github.sibmaks.spring.jfr.controller.rest.RestControllerJavaFlightRecorderAspect;
@@ -43,7 +44,7 @@ public class JavaFlightRecorderConfiguration {
                     )
             }
     )
-    public static JpaRepositoryJavaFlightRecorderAspect jpaRepositoryJfrAspect() {
+    public static JpaRepositoryJavaFlightRecorderAspect jpaRepositoryJavaFlightRecorderAspect() {
         return new JpaRepositoryJavaFlightRecorderAspect();
     }
 
@@ -58,7 +59,7 @@ public class JavaFlightRecorderConfiguration {
                     )
             }
     )
-    public static ControllerJavaFlightRecorderAspect controllerJfrAspect() {
+    public static ControllerJavaFlightRecorderAspect controllerJavaFlightRecorderAspect() {
         return new ControllerJavaFlightRecorderAspect();
     }
 
@@ -73,7 +74,7 @@ public class JavaFlightRecorderConfiguration {
                     )
             }
     )
-    public static RestControllerJavaFlightRecorderAspect restControllerJfrAspect() {
+    public static RestControllerJavaFlightRecorderAspect restControllerJavaFlightRecorderAspect() {
         return new RestControllerJavaFlightRecorderAspect();
     }
 
@@ -88,8 +89,23 @@ public class JavaFlightRecorderConfiguration {
                     )
             }
     )
-    public static SchedulerJavaFlightRecorderAspect schedulerJfrAspect() {
+    public static SchedulerJavaFlightRecorderAspect schedulerJavaFlightRecorderAspect() {
         return new SchedulerJavaFlightRecorderAspect();
+    }
+
+    @Bean
+    @JavaFlightRecorderConditional(
+            requiredClasses = "org.springframework.scheduling.annotation.Async",
+            properties = {
+                    @JavaFlightRecorderProperty(
+                            key = "spring.jfr.instrumentation.scheduler.enabled",
+                            value = "true",
+                            matchIfMissing = true
+                    )
+            }
+    )
+    public static AsyncJavaFlightRecorderAspect asyncJavaFlightRecorderAspect() {
+        return new AsyncJavaFlightRecorderAspect();
     }
 
 }

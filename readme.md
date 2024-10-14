@@ -81,3 +81,4 @@
 | `spring.jfr.instrumentation.controller.enabled`      | `true`                | Переключатель инструментирования вызовов контроллеров          |
 | `spring.jfr.instrumentation.rest-controller.enabled` | `true`                | Переключатель инструментирования вызовов Rest контроллеров     |
 | `spring.jfr.instrumentation.scheduler.enabled`       | `true`                | Переключатель инструментирования вызовов запланированных задач |
+| `spring.jfr.instrumentation.async.enabled`           | `true`                | Переключатель инструментирования вызовов асинхронных методов   |
