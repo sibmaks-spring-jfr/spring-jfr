@@ -1,0 +1,32 @@
+name: Create Release on Tag Push
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  create_release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Extract Version Number
+        run: |
+          echo "Extracting version from tag..."
+          VERSION=${GITHUB_REF##*/}
+          VERSION=${VERSION#v}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+      - uses: ncipollo/release-action@v1
+        id: create_release
+        name: Create GitHub release
+        with:
+          draft: true
+          generateReleaseNotes: true
+          makeLatest: true
+          name: Release ${{ env.VERSION }}
+          prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
