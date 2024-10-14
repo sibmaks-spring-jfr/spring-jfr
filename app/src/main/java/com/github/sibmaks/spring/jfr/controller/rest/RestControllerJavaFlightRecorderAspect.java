@@ -1,28 +1,30 @@
-package com.github.sibmaks.spring.jfr.controller;
+package com.github.sibmaks.spring.jfr.controller.rest;
 
-import com.github.sibmaks.spring.jfr.OnClassConditional;
-import com.github.sibmaks.spring.jfr.event.ControllerInvocationEvent;
+import com.github.sibmaks.spring.jfr.event.RestControllerInvocationEvent;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+/**
+ * Spring Java Flight recorder {@link RestController} invocation aspect.
+ *
+ * @author sibmaks
+ * @since 0.0.4
+ */
 @Aspect
-@Component
-@OnClassConditional("org.springframework.stereotype.Controller")
-public class ControllerJfrAspect {
+public class RestControllerJavaFlightRecorderAspect {
 
-    @Pointcut("@within(controller) && execution(* *(..))")
-    public void controllerMethods(Controller controller) {
+    @Pointcut("@within(restController) && execution(* *(..))")
+    public void restControllerMethods(RestController restController) {
         // Pointcut to capture all methods in classes annotated with @RestController
     }
 
-    @Around(value = "controllerMethods(controller)", argNames = "joinPoint,controller")
-    public Object traceRestController(ProceedingJoinPoint joinPoint, Controller controller) throws Throwable {
+    @Around(value = "restControllerMethods(restController)", argNames = "joinPoint,restController")
+    public Object traceRestController(ProceedingJoinPoint joinPoint, RestController restController) throws Throwable {
         var requestAttributes = RequestContextHolder.getRequestAttributes();
         String url = null;
         String method = null;
@@ -31,7 +33,7 @@ public class ControllerJfrAspect {
             url = rq.getRequestURI();
             method = rq.getMethod();
         }
-        var event = new ControllerInvocationEvent(
+        var event = new RestControllerInvocationEvent(
                 joinPoint.getSignature().toShortString(),
                 method,
                 url

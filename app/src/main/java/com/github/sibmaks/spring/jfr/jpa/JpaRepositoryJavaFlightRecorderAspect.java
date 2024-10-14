@@ -1,15 +1,13 @@
 package com.github.sibmaks.spring.jfr.jpa;
 
-import com.github.sibmaks.spring.jfr.event.JpaEvent;
+import com.github.sibmaks.spring.jfr.event.JpaEventInvocationEvent;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.stereotype.Component;
 
 @Aspect
-@Component
-public class JpaRepositoryJfrAspect {
+public class JpaRepositoryJavaFlightRecorderAspect {
 
     @Pointcut("execution(* org.springframework.data.jpa.repository.JpaRepository+.*(..))")
     public void jpaRepositoryMethods() {
@@ -18,7 +16,7 @@ public class JpaRepositoryJfrAspect {
 
     @Around("jpaRepositoryMethods()")
     public Object traceJpaRepository(ProceedingJoinPoint joinPoint) throws Throwable {
-        var event = new JpaEvent(joinPoint.getSignature().toShortString());
+        var event = new JpaEventInvocationEvent(joinPoint.getSignature().toShortString());
 
         event.begin();
         try {

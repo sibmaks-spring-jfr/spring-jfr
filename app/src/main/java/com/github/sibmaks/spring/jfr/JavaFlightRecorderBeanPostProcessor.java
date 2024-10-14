@@ -3,7 +3,6 @@ package com.github.sibmaks.spring.jfr;
 import com.github.sibmaks.spring.jfr.event.BeanRegisteredEvent;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.context.annotation.Conditional;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,7 +24,7 @@ public class JavaFlightRecorderBeanPostProcessor implements BeanPostProcessor {
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        var event = beanNameToRegisteredEvent.remove(beanName);
+        var event = beanNameToRegisteredEvent.get(beanName);
         event.commit();
         return bean;
     }

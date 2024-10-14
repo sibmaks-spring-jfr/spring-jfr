@@ -28,8 +28,8 @@ dependencies {
     implementation(libs.spring.aspects)
     implementation(libs.spring.context)
 
-    compileOnly(libs.spring.jpa)
-    compileOnly(libs.spring.web)
+    implementation(libs.spring.jpa)
+    implementation(libs.spring.web)
 
     testImplementation(libs.junit.jupiter)
 

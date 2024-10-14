@@ -3,15 +3,15 @@ package com.github.sibmaks.spring.jfr.event;
 import jdk.jfr.Event;
 import jdk.jfr.Label;
 
-@Label("JPA Repository Event")
-public class JpaEvent extends Event {
+@Label("JPA Invocation Event")
+public class JpaEventInvocationEvent extends Event {
     @Label("Method Name")
     private final String methodName;
 
     @Label("Exception")
     private String exception;
 
-    public JpaEvent(String methodName) {
+    public JpaEventInvocationEvent(String methodName) {
         this.methodName = methodName;
     }
 

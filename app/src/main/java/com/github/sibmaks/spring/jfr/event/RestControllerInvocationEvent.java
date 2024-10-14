@@ -3,7 +3,7 @@ package com.github.sibmaks.spring.jfr.event;
 import jdk.jfr.Event;
 import jdk.jfr.Label;
 
-@Label("RestController Event")
+@Label("RestController Invocation Event")
 public class RestControllerInvocationEvent extends Event {
     @Label("Method Name")
     private final String methodName;

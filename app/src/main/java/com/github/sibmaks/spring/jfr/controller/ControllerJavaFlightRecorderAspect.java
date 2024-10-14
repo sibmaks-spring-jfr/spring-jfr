@@ -1,37 +1,39 @@
-package com.github.sibmaks.spring.jfr.controller.rest;
+package com.github.sibmaks.spring.jfr.controller;
 
-import com.github.sibmaks.spring.jfr.OnClassConditional;
-import com.github.sibmaks.spring.jfr.event.RestControllerInvocationEvent;
+import com.github.sibmaks.spring.jfr.event.ControllerInvocationEvent;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+/**
+ * Spring Java Flight recorder {@link Controller} invocation aspect.
+ *
+ * @author sibmaks
+ * @since 0.0.4
+ */
 @Aspect
-@Component
-@OnClassConditional("org.springframework.web.bind.annotation.RestController")
-public class RestControllerJfrAspect {
+public class ControllerJavaFlightRecorderAspect {
 
-    @Pointcut("@within(restController) && execution(* *(..))")
-    public void restControllerMethods(RestController restController) {
+    @Pointcut("@within(controller) && execution(* *(..))")
+    public void controllerMethods(Controller controller) {
         // Pointcut to capture all methods in classes annotated with @RestController
     }
 
-    @Around(value = "restControllerMethods(restController)", argNames = "joinPoint,restController")
-    public Object traceRestController(ProceedingJoinPoint joinPoint, RestController restController) throws Throwable {
+    @Around(value = "controllerMethods(controller)", argNames = "joinPoint,controller")
+    public Object traceRestController(ProceedingJoinPoint joinPoint, Controller controller) throws Throwable {
         var requestAttributes = RequestContextHolder.getRequestAttributes();
         String url = null;
         String method = null;
-        if(requestAttributes instanceof ServletRequestAttributes servletRequestAttributes) {
+        if (requestAttributes instanceof ServletRequestAttributes servletRequestAttributes) {
             var rq = servletRequestAttributes.getRequest();
             url = rq.getRequestURI();
             method = rq.getMethod();
         }
-        var event = new RestControllerInvocationEvent(
+        var event = new ControllerInvocationEvent(
                 joinPoint.getSignature().toShortString(),
                 method,
                 url
