@@ -19,8 +19,10 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.spring.context)
+    implementation("org.springframework.boot:spring-boot-starter")
+    implementation(project(":app"))
 
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation(libs.junit.jupiter)
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

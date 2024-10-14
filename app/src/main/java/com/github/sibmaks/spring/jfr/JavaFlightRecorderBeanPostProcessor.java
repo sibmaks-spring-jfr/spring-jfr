@@ -3,6 +3,7 @@ package com.github.sibmaks.spring.jfr;
 import com.github.sibmaks.spring.jfr.event.BeanRegisteredEvent;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.context.annotation.Conditional;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

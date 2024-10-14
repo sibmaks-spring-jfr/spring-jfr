@@ -1,5 +1,5 @@
 plugins {
-    application
+    java
     jacoco
     `maven-publish`
 }
@@ -19,7 +19,14 @@ repositories {
 }
 
 dependencies {
+    implementation(libs.jakarta.servlet)
+
+    implementation(libs.spring.aop)
+    implementation(libs.spring.aspects)
     implementation(libs.spring.context)
+
+    compileOnly(libs.spring.jpa)
+    compileOnly(libs.spring.web)
 
     testImplementation(libs.junit.jupiter)
 
@@ -34,11 +41,6 @@ java {
         languageVersion = javaLanguageVersion
     }
     withSourcesJar()
-}
-
-application {
-    // Define the main class for the application.
-    mainClass = "org.example.App"
 }
 
 tasks.named<Test>("test") {
