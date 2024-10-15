@@ -41,4 +41,6 @@ jobs:
         with:
           files: app/build/libs/*.jar
       - name: Publish package
-        run: ./gradlew publish -Pgpr.user=${{ github.actor }} -Pgpr.key=${{ secrets.GITHUB_TOKEN }}
+        run: ./gradlew publish -Pgpr.user=x-access-token
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
