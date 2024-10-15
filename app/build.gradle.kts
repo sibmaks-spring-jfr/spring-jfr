@@ -4,6 +4,7 @@ import java.util.*
 plugins {
     java
     jacoco
+    `maven-publish`
 }
 
 val versionFromProperty = "${project.property("version")}"
@@ -65,5 +66,49 @@ tasks.jar {
                 "Built-On-Java" to "${System.getProperty("java.vm.version")} (${System.getProperty("java.vm.vendor")})"
             )
         )
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+            pom {
+                packaging = "jar"
+                url = "https://github.com/sibmaks/spring-jfr"
+                artifactId = project.property("project_name").toString()
+
+                licenses {
+                    license {
+                        name.set("The MIT License (MIT)")
+                        url.set("https://www.mit.edu/~amini/LICENSE.md")
+                    }
+                }
+
+                scm {
+                    connection.set("scm:https://github.com/sibmaks/spring-jfr.git")
+                    developerConnection.set("scm:git:ssh://github.com/sibmaks")
+                    url.set("https://github.com/sibmaks/spring-jfr")
+                }
+
+                developers {
+                    developer {
+                        id.set("sibmaks")
+                        name.set("Maksim Drobyshev")
+                        email.set("sibmaks@vk.com")
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = "OSSRH"
+            url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_PASSWORD")
+            }
+        }
     }
 }
