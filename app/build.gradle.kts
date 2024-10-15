@@ -69,8 +69,8 @@ tasks.jar {
     }
 }
 
-val ossrhUsername: String = System.getenv("MAVEN_USERNAME")
-val ossrhPassword: String = System.getenv("MAVEN_PASSWORD")
+val ossrhUsername: String? = System.getenv("OSSRH_USERNAME")
+val ossrhPassword: String? = System.getenv("OSSRH_PASSWORD")
 println("OSSRH_USERNAME=$ossrhUsername, OSSRH_PASSWORD=$ossrhPassword")
 
 publishing {
