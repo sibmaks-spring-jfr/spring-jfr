@@ -33,12 +33,12 @@ jobs:
         run: chmod +x gradlew
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
-      - name: Publish package
-        run: ./gradlew publish
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build package
+        run: ./gradlew build
       - name: Store distribution packages
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: app/build/libs/*.jar
+      - name: Publish package
+        run: ./gradlew publish -Pgpr.user=${{ github.actor }} -Pgpr.key=${{ secrets.GITHUB_TOKEN }}
