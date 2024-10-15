@@ -40,7 +40,3 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: app/build/libs/*.jar
-      - name: Publish package
-        run: ./gradlew publish
-        env:
-          GITHUB_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
