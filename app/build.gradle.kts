@@ -69,6 +69,10 @@ tasks.jar {
     }
 }
 
+val ossrhUsername: String = System.getenv("MAVEN_USERNAME")
+val ossrhPassword: String = System.getenv("MAVEN_PASSWORD")
+println("OSSRH_USERNAME=$ossrhUsername, OSSRH_PASSWORD=$ossrhPassword")
+
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
@@ -106,8 +110,8 @@ publishing {
             name = "OSSRH"
             url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
             credentials {
-                username = System.getenv("MAVEN_USERNAME")
-                password = System.getenv("MAVEN_PASSWORD")
+                username = ossrhUsername
+                password = ossrhPassword
             }
         }
     }
