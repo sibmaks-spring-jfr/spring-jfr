@@ -22,7 +22,7 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.jakarta.servlet)
+    implementation(libs.javax.servlet)
 
     implementation(libs.spring.aop)
     implementation(libs.spring.aspects)

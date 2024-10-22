@@ -27,7 +27,8 @@ public class ControllerJavaFlightRecorderAspect {
         var requestAttributes = RequestContextHolder.getRequestAttributes();
         String url = null;
         String method = null;
-        if (requestAttributes instanceof ServletRequestAttributes servletRequestAttributes) {
+        if (requestAttributes instanceof ServletRequestAttributes) {
+            var servletRequestAttributes = (ServletRequestAttributes) requestAttributes;
             var rq = servletRequestAttributes.getRequest();
             url = rq.getRequestURI();
             method = rq.getMethod();

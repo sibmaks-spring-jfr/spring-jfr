@@ -26,8 +26,8 @@ public class AsyncJavaFlightRecorderAspect {
         try {
             result = joinPoint.proceed();
 
-            if (result instanceof Future<?> future) {
-                return new InstrumentedFuture<>(future, event);
+            if (result instanceof Future<?>) {
+                return new InstrumentedFuture<>((Future<?>) result, event);
             } else {
                 event.commit();
             }

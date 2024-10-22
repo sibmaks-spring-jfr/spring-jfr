@@ -1,7 +1,5 @@
 package io.github.sibmaks.spring.jfr;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.annotation.AnnotationAttributes;
@@ -10,7 +8,6 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 import java.util.Objects;
 
 public class JavaFlightRecorderCondition implements Condition {
-    private static final Logger log = LoggerFactory.getLogger(JavaFlightRecorderCondition.class);
 
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
@@ -37,10 +34,14 @@ public class JavaFlightRecorderCondition implements Condition {
         }
 
         var requiredClasses = attributes.get("requiredClasses");
-        if (!(requiredClasses instanceof String[] classes)) {
+        if (!(requiredClasses instanceof String[])) {
             return false;
         }
+        var classes = (String[]) requiredClasses;
         var classLoader = context.getClassLoader();
+        if (classLoader == null) {
+            classLoader = JavaFlightRecorderCondition.class.getClassLoader();
+        }
         try {
             for (var type : classes) {
                 classLoader.loadClass(type);

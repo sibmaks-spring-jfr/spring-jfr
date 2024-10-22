@@ -1,10 +1,10 @@
 [versions]
-spring = "6.1.13"
-spring-data = "3.3.4"
-spring-framework = "3.3.4"
+spring = "5.3.37"
+spring-data = "2.7.18"
+spring-framework = "2.7.18"
 spring-dependency-managment = "1.1.6"
 junit-jupiter = "5.10.3"
-jakarta-servlet = "6.1.0"
+javax-servlet = "4.0.1"
 
 [libraries]
 
@@ -13,7 +13,7 @@ spring-aspects = { module = "org.springframework:spring-aspects", version.ref = 
 spring-context = { module = "org.springframework:spring-context", version.ref = "spring" }
 spring-web = { module = "org.springframework:spring-web", version.ref = "spring" }
 spring-jpa = { module = "org.springframework.data:spring-data-jpa", version.ref = "spring-data" }
-jakarta-servlet = { module = "jakarta.servlet:jakarta.servlet-api", version.ref = "jakarta-servlet" }
+javax-servlet = { module = "javax.servlet:javax.servlet-api", version.ref = "javax-servlet" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
 
 [plugins]
