@@ -22,21 +22,11 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":api"))
-
-    implementation(libs.javax.servlet)
-
-    implementation(libs.spring.aop)
-    implementation(libs.spring.aspects)
-    implementation(libs.spring.context)
-
-    implementation(libs.spring.jpa)
-    implementation(libs.spring.web)
-
     testImplementation(libs.junit.jupiter)
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
+
 
 java {
     sourceCompatibility = javaVersion
@@ -48,13 +38,12 @@ java {
 }
 
 tasks.named<Test>("test") {
-    // Use JUnit Platform for unit tests.
     useJUnitPlatform()
 }
 
 tasks.jar {
     from("LICENSE") {
-        rename { "${it}_${project.property("project_name")}" }
+        rename { "${it}_${project.property("project_name")}_api" }
     }
     manifest {
         attributes(
@@ -77,7 +66,7 @@ publishing {
             pom {
                 packaging = "jar"
                 url = "https://github.com/sibmaks/spring-jfr"
-                artifactId = project.property("project_name").toString()
+                artifactId = "${project.property("project_name")}-api"
 
                 licenses {
                     license {
@@ -99,16 +88,6 @@ publishing {
                         email.set("sibmaks@vk.com")
                     }
                 }
-            }
-        }
-    }
-    repositories {
-        maven {
-            name = "OSSRH"
-            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-            credentials {
-                username = System.getenv("MAVEN_USERNAME")
-                password = System.getenv("MAVEN_PASSWORD")
             }
         }
     }
