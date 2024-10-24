@@ -1,6 +1,7 @@
 package io.github.sibmaks.spring.jfr.async;
 
-import io.github.sibmaks.spring.jfr.event.AsyncInvocationEvent;
+
+import io.github.sibmaks.spring.jfr.event.async.AsyncInvocationEvent;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;

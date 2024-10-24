@@ -8,6 +8,7 @@ import io.github.sibmaks.spring.jfr.controller.ControllerJavaFlightRecorderAspec
 import io.github.sibmaks.spring.jfr.controller.rest.RestControllerJavaFlightRecorderAspect;
 import io.github.sibmaks.spring.jfr.jpa.JpaRepositoryJavaFlightRecorderAspect;
 import io.github.sibmaks.spring.jfr.scheduler.SchedulerJavaFlightRecorderAspect;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -30,8 +31,11 @@ public class JavaFlightRecorderConfiguration {
                     )
             }
     )
-    public static JavaFlightRecorderBeanPostProcessor javaFlightRecorderBeanPostProcessor() {
-        return new JavaFlightRecorderBeanPostProcessor();
+
+    public static JavaFlightRecorderBeanPostProcessor javaFlightRecorderBeanPostProcessor(
+            ConfigurableListableBeanFactory beanFactory
+    ) {
+        return new JavaFlightRecorderBeanPostProcessor(beanFactory);
     }
 
     @Bean

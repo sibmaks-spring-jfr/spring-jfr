@@ -1,4 +1,5 @@
 [versions]
+spring-jfr-api = "0.0.6"
 spring = "5.3.37"
 spring-data = "2.7.18"
 spring-framework = "2.7.18"
@@ -8,6 +9,7 @@ javax-servlet = "4.0.1"
 
 [libraries]
 
+spring-jfr-api = { module = "io.github.sibmaks.spring-jfr:api", version.ref = "spring-jfr-api" }
 spring-aop = { module = "org.springframework:spring-aop", version.ref = "spring" }
 spring-aspects = { module = "org.springframework:spring-aspects", version.ref = "spring" }
 spring-context = { module = "org.springframework:spring-context", version.ref = "spring" }

@@ -1,6 +1,6 @@
 package io.github.sibmaks.spring.jfr.scheduler;
 
-import io.github.sibmaks.spring.jfr.event.ScheduledInvocationEvent;
+import io.github.sibmaks.spring.jfr.event.scheduled.ScheduledInvocationEvent;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -16,9 +16,9 @@ public class SchedulerJavaFlightRecorderAspect {
 
     @Around(value = "scheduledMethods(scheduled)", argNames = "joinPoint,scheduled")
     public Object traceScheduledMethods(ProceedingJoinPoint joinPoint, Scheduled scheduled) throws Throwable {
-        var scheduledEvent = new ScheduledInvocationEvent(
-                joinPoint.getSignature().toString()
-        );
+        var scheduledEvent = ScheduledInvocationEvent.builder()
+                .methodName(joinPoint.getSignature().toString())
+                .build();
         scheduledEvent.begin();
         try {
             return joinPoint.proceed();

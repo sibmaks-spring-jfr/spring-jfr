@@ -19,10 +19,12 @@ val javaLanguageVersion = JavaLanguageVersion.of(targetJavaVersion)
 
 repositories {
     mavenCentral()
+    maven(url = "https://nexus.sibmaks.ru/repository/maven-snapshots/")
+    maven(url = "https://nexus.sibmaks.ru/repository/maven-releases/")
 }
 
 dependencies {
-    implementation(project(":api"))
+    implementation(libs.spring.jfr.api)
 
     implementation(libs.javax.servlet)
 
@@ -48,7 +50,6 @@ java {
 }
 
 tasks.named<Test>("test") {
-    // Use JUnit Platform for unit tests.
     useJUnitPlatform()
 }
 
@@ -56,6 +57,11 @@ tasks.jar {
     from("LICENSE") {
         rename { "${it}_${project.property("project_name")}" }
     }
+    from({
+        configurations.compileClasspath.get()
+            .filter { it.name.contains("api") && it.parent.contains("spring-jfr") }
+            .map { zipTree(it) }
+    })
     manifest {
         attributes(
             mapOf(
@@ -99,16 +105,6 @@ publishing {
                         email.set("sibmaks@vk.com")
                     }
                 }
-            }
-        }
-    }
-    repositories {
-        maven {
-            name = "OSSRH"
-            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-            credentials {
-                username = System.getenv("MAVEN_USERNAME")
-                password = System.getenv("MAVEN_PASSWORD")
             }
         }
     }
