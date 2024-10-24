@@ -1,30 +1,29 @@
 package io.github.sibmaks.spring.jfr.bean;
 
-import io.github.sibmaks.spring.jfr.event.BeanRegisteredEvent;
+import io.github.sibmaks.spring.jfr.event.bean.PostProcessAfterInitializationEvent;
+import io.github.sibmaks.spring.jfr.event.bean.PostProcessBeforeInitializationEvent;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
 public class JavaFlightRecorderBeanPostProcessor implements BeanPostProcessor {
-    private final Map<String, BeanRegisteredEvent> beanNameToRegisteredEvent;
+    private final JavaFlightRecorderBeanDefinitionEventProducer eventProducer;
 
-    public JavaFlightRecorderBeanPostProcessor() {
-        this.beanNameToRegisteredEvent = new ConcurrentHashMap<>();
+    public JavaFlightRecorderBeanPostProcessor(ConfigurableListableBeanFactory beanFactory) {
+        this.eventProducer = new JavaFlightRecorderBeanDefinitionEventProducer(beanFactory);
     }
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        var event = new BeanRegisteredEvent(beanName);
-        beanNameToRegisteredEvent.put(beanName, event);
-        event.begin();
+        eventProducer.produce(beanName, bean.getClass());
+        var event = new PostProcessBeforeInitializationEvent(beanName);
+        event.commit();
         return bean;
     }
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        var event = beanNameToRegisteredEvent.get(beanName);
+        var event = new PostProcessAfterInitializationEvent(beanName);
         event.commit();
         return bean;
     }

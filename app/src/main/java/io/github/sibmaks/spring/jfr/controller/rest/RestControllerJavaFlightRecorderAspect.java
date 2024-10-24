@@ -1,6 +1,6 @@
 package io.github.sibmaks.spring.jfr.controller.rest;
 
-import io.github.sibmaks.spring.jfr.event.RestControllerInvocationEvent;
+import io.github.sibmaks.spring.jfr.event.controller.RestControllerInvocationEvent;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
