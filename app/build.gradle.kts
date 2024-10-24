@@ -82,8 +82,8 @@ publishing {
             from(components["java"])
             pom {
                 packaging = "jar"
-                url = "https://github.com/sibmaks/spring-jfr"
-                artifactId = project.property("project_name").toString()
+                url = "${project.property("git_url")}"
+                artifactId = "${project.property("project_name")}"
 
                 licenses {
                     license {
@@ -93,9 +93,9 @@ publishing {
                 }
 
                 scm {
-                    connection.set("scm:https://github.com/sibmaks/spring-jfr.git")
-                    developerConnection.set("scm:git:ssh://github.com/sibmaks")
-                    url.set("https://github.com/sibmaks/spring-jfr")
+                    connection.set("scm:${project.property("git_url")}.git")
+                    developerConnection.set("${project.property("git_organization_url")}")
+                    url.set("${project.property("git_url")}")
                 }
 
                 developers {
@@ -105,6 +105,25 @@ publishing {
                         email.set("sibmaks@vk.com")
                     }
                 }
+            }
+        }
+    }
+    repositories {
+        maven {
+            val releasesUrl = uri("https://nexus.sibmaks.ru/repository/maven-releases/")
+            val snapshotsUrl = uri("https://nexus.sibmaks.ru/repository/maven-snapshots/")
+            url = if (version.toString().endsWith("SNAPSHOT")) snapshotsUrl else releasesUrl
+            credentials {
+                username = project.findProperty("nexus_username")?.toString() ?: System.getenv("NEXUS_USERNAME")
+                password = project.findProperty("nexus_password")?.toString() ?: System.getenv("NEXUS_PASSWORD")
+            }
+        }
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/${project.property("git_path")}")
+            credentials {
+                username = project.findProperty("gpr.user")?.toString() ?: System.getenv("GITHUB_ACTOR")
+                password = project.findProperty("gpr.key")?.toString() ?: System.getenv("GITHUB_TOKEN")
             }
         }
     }
