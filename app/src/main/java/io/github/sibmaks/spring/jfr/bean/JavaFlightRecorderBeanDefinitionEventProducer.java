@@ -1,7 +1,10 @@
 package io.github.sibmaks.spring.jfr.bean;
 
 import io.github.sibmaks.spring.jfr.event.bean.BeanDefinitionRegisteredEvent;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -29,16 +32,20 @@ public final class JavaFlightRecorderBeanDefinitionEventProducer implements Bean
 
     private void produce(String beanName, Class<?> beanType) {
         var beanDefinition = beanFactory.getBeanDefinition(beanName);
-        var dependsOn = Optional.ofNullable(beanDefinition.getDependsOn())
-                .map(List::of)
-                .map(HashSet::new)
-                .orElseGet(HashSet::new);
-        var otherDeps = Optional.of(beanFactory.getDependenciesForBean(beanName))
-                .map(List::of)
-                .map(HashSet::new)
-                .orElseGet(HashSet::new);
-        var dependencies = new HashSet<>(dependsOn);
-        dependencies.addAll(otherDeps);
+
+        var dependencies = new HashSet<String>();
+        if(BeanFactoryUtils.isGeneratedBeanName(beanName)) {
+            var dependsOn = Optional.ofNullable(beanDefinition.getDependsOn())
+                    .map(List::of)
+                    .map(HashSet::new)
+                    .orElseGet(HashSet::new);
+            var otherDeps = Optional.of(beanFactory.getDependenciesForBean(beanName))
+                    .map(List::of)
+                    .map(HashSet::new)
+                    .orElseGet(HashSet::new);
+            dependencies.addAll(dependsOn);
+            dependencies.addAll(otherDeps);
+        }
 
         var scope = Optional.ofNullable(beanDefinition.getScope())
                 .or(() -> Optional.ofNullable(beanDefinition.isSingleton() ? BeanDefinition.SCOPE_SINGLETON : null))
