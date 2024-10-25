@@ -15,7 +15,6 @@ public class JavaFlightRecorderBeanPostProcessor implements BeanPostProcessor {
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        eventProducer.produce(beanName, bean.getClass());
         var event = new PostProcessBeforeInitializationEvent(beanName);
         event.commit();
         return bean;
@@ -23,6 +22,7 @@ public class JavaFlightRecorderBeanPostProcessor implements BeanPostProcessor {
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        eventProducer.produce(beanName, bean.getClass());
         var event = new PostProcessAfterInitializationEvent(beanName);
         event.commit();
         return bean;
