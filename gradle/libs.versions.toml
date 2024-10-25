@@ -10,7 +10,6 @@ javax-servlet = "4.0.1"
 [libraries]
 
 spring-jfr-api = { module = "io.github.sibmaks.spring-jfr:api", version.ref = "spring-jfr-api" }
-spring-aop = { module = "org.springframework:spring-aop", version.ref = "spring" }
 spring-aspects = { module = "org.springframework:spring-aspects", version.ref = "spring" }
 spring-context = { module = "org.springframework:spring-context", version.ref = "spring" }
 spring-web = { module = "org.springframework:spring-web", version.ref = "spring" }

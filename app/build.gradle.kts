@@ -26,14 +26,13 @@ repositories {
 dependencies {
     implementation(libs.spring.jfr.api)
 
-    implementation(libs.javax.servlet)
+    compileOnly(libs.javax.servlet)
 
-    implementation(libs.spring.aop)
-    implementation(libs.spring.aspects)
-    implementation(libs.spring.context)
+    compileOnly(libs.spring.aspects)
+    compileOnly(libs.spring.context)
 
-    implementation(libs.spring.jpa)
-    implementation(libs.spring.web)
+    compileOnly(libs.spring.jpa)
+    compileOnly(libs.spring.web)
 
     testImplementation(libs.junit.jupiter)
 
@@ -57,11 +56,6 @@ tasks.jar {
     from("LICENSE") {
         rename { "${it}_${project.property("project_name")}" }
     }
-    from({
-        configurations.compileClasspath.get()
-            .filter { it.name.contains("api") && it.parent.contains("spring-jfr") }
-            .map { zipTree(it) }
-    })
     manifest {
         attributes(
             mapOf(

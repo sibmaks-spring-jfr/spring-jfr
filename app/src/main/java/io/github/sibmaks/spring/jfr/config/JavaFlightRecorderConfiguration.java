@@ -26,8 +26,7 @@ public class JavaFlightRecorderConfiguration {
             properties = {
                     @JavaFlightRecorderProperty(
                             key = "spring.jfr.instrumentation.beans-creation.enabled",
-                            value = "true",
-                            matchIfMissing = true
+                            value = "true"
                     )
             }
     )
@@ -43,8 +42,7 @@ public class JavaFlightRecorderConfiguration {
             properties = {
                     @JavaFlightRecorderProperty(
                             key = "spring.jfr.instrumentation.jpa-repository.enabled",
-                            value = "true",
-                            matchIfMissing = true
+                            value = "true"
                     )
             }
     )
@@ -58,8 +56,7 @@ public class JavaFlightRecorderConfiguration {
             properties = {
                     @JavaFlightRecorderProperty(
                             key = "spring.jfr.instrumentation.controller.enabled",
-                            value = "true",
-                            matchIfMissing = true
+                            value = "true"
                     )
             }
     )
@@ -73,8 +70,7 @@ public class JavaFlightRecorderConfiguration {
             properties = {
                     @JavaFlightRecorderProperty(
                             key = "spring.jfr.instrumentation.rest-controller.enabled",
-                            value = "true",
-                            matchIfMissing = true
+                            value = "true"
                     )
             }
     )
@@ -88,8 +84,7 @@ public class JavaFlightRecorderConfiguration {
             properties = {
                     @JavaFlightRecorderProperty(
                             key = "spring.jfr.instrumentation.scheduler.enabled",
-                            value = "true",
-                            matchIfMissing = true
+                            value = "true"
                     )
             }
     )
@@ -102,9 +97,8 @@ public class JavaFlightRecorderConfiguration {
             requiredClasses = "org.springframework.scheduling.annotation.Async",
             properties = {
                     @JavaFlightRecorderProperty(
-                            key = "spring.jfr.instrumentation.scheduler.enabled",
-                            value = "true",
-                            matchIfMissing = true
+                            key = "spring.jfr.instrumentation.async.enabled",
+                            value = "true"
                     )
             }
     )
