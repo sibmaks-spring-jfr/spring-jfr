@@ -3,6 +3,7 @@ package io.github.sibmaks.spring.jfr.config;
 import io.github.sibmaks.spring.jfr.JavaFlightRecorderConditional;
 import io.github.sibmaks.spring.jfr.JavaFlightRecorderProperty;
 import io.github.sibmaks.spring.jfr.async.AsyncJavaFlightRecorderAspect;
+import io.github.sibmaks.spring.jfr.bean.JavaFlightRecorderBeanDefinitionEventProducer;
 import io.github.sibmaks.spring.jfr.bean.JavaFlightRecorderBeanPostProcessor;
 import io.github.sibmaks.spring.jfr.controller.ControllerJavaFlightRecorderAspect;
 import io.github.sibmaks.spring.jfr.controller.rest.RestControllerJavaFlightRecorderAspect;
@@ -31,10 +32,24 @@ public class JavaFlightRecorderConfiguration {
             }
     )
 
-    public static JavaFlightRecorderBeanPostProcessor javaFlightRecorderBeanPostProcessor(
+    public static JavaFlightRecorderBeanPostProcessor javaFlightRecorderBeanPostProcessor() {
+        return new JavaFlightRecorderBeanPostProcessor();
+    }
+
+    @Bean
+    @JavaFlightRecorderConditional(
+            properties = {
+                    @JavaFlightRecorderProperty(
+                            key = "spring.jfr.instrumentation.bean-definitions.enabled",
+                            value = "true"
+                    )
+            }
+    )
+
+    public static JavaFlightRecorderBeanDefinitionEventProducer javaFlightRecorderBeanDefinitionEventProducer(
             ConfigurableListableBeanFactory beanFactory
     ) {
-        return new JavaFlightRecorderBeanPostProcessor(beanFactory);
+        return new JavaFlightRecorderBeanDefinitionEventProducer(beanFactory);
     }
 
     @Bean

@@ -1,7 +1,9 @@
 package io.github.sibmaks.spring.jfr.bean;
 
 import io.github.sibmaks.spring.jfr.event.bean.BeanDefinitionRegisteredEvent;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
 import java.util.HashSet;
@@ -12,14 +14,20 @@ import java.util.Optional;
  * @author sibmaks
  * @since 0.0.2
  */
-public final class JavaFlightRecorderBeanDefinitionEventProducer {
+public final class JavaFlightRecorderBeanDefinitionEventProducer implements BeanPostProcessor {
     private final ConfigurableListableBeanFactory beanFactory;
 
     public JavaFlightRecorderBeanDefinitionEventProducer(ConfigurableListableBeanFactory beanFactory) {
         this.beanFactory = beanFactory;
     }
 
-    public void produce(String beanName, Class<?> beanType) {
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        produce(beanName, bean.getClass());
+        return bean;
+    }
+
+    private void produce(String beanName, Class<?> beanType) {
         var beanDefinition = beanFactory.getBeanDefinition(beanName);
         var dependsOn = Optional.ofNullable(beanDefinition.getDependsOn())
                 .map(List::of)
