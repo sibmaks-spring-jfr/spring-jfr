@@ -57,7 +57,7 @@ public final class JavaFlightRecorderBeanDefinitionEventProducer implements Bean
                 .scope(scope)
                 .beanClassName(beanClassName)
                 .beanName(beanName)
-                .primary(beanDefinition.isPrimary())
+                .primary(String.valueOf(beanDefinition.isPrimary()))
                 .dependencies(dependencies.toArray(String[]::new))
                 .generated(false)
                 .build();
