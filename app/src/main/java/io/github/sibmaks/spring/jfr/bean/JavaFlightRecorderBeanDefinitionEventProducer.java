@@ -1,9 +1,7 @@
 package io.github.sibmaks.spring.jfr.bean;
 
 import io.github.sibmaks.spring.jfr.event.bean.BeanDefinitionRegisteredEvent;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -26,26 +24,26 @@ public final class JavaFlightRecorderBeanDefinitionEventProducer implements Bean
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        produce(beanName, bean.getClass());
+        if (BeanFactoryUtils.isGeneratedBeanName(beanName)) {
+            produceGenerated(beanName, bean.getClass());
+        } else {
+            produce(beanName, bean.getClass());
+        }
         return bean;
     }
 
     private void produce(String beanName, Class<?> beanType) {
-        var beanDefinition = beanFactory.getBeanDefinition(beanName);
+        var beanDefinition = beanFactory.getMergedBeanDefinition(beanName);
 
-        var dependencies = new HashSet<String>();
-        if(BeanFactoryUtils.isGeneratedBeanName(beanName)) {
-            var dependsOn = Optional.ofNullable(beanDefinition.getDependsOn())
-                    .map(List::of)
-                    .map(HashSet::new)
-                    .orElseGet(HashSet::new);
-            var otherDeps = Optional.of(beanFactory.getDependenciesForBean(beanName))
-                    .map(List::of)
-                    .map(HashSet::new)
-                    .orElseGet(HashSet::new);
-            dependencies.addAll(dependsOn);
-            dependencies.addAll(otherDeps);
-        }
+        var dependencies = Optional.ofNullable(beanDefinition.getDependsOn())
+                .map(List::of)
+                .map(HashSet::new)
+                .orElseGet(HashSet::new);
+        var otherDeps = Optional.of(beanFactory.getDependenciesForBean(beanName))
+                .map(List::of)
+                .map(HashSet::new)
+                .orElseGet(HashSet::new);
+        dependencies.addAll(otherDeps);
 
         var scope = Optional.ofNullable(beanDefinition.getScope())
                 .or(() -> Optional.ofNullable(beanDefinition.isSingleton() ? BeanDefinition.SCOPE_SINGLETON : null))
@@ -61,6 +59,24 @@ public final class JavaFlightRecorderBeanDefinitionEventProducer implements Bean
                 .beanName(beanName)
                 .primary(beanDefinition.isPrimary())
                 .dependencies(dependencies.toArray(String[]::new))
+                .generated(false)
+                .build();
+        event.commit();
+    }
+
+    private void produceGenerated(String beanName, Class<?> beanType) {
+        var dependencies = Optional.of(beanFactory.getDependenciesForBean(beanName))
+                .map(List::of)
+                .map(HashSet::new)
+                .orElseGet(HashSet::new);
+
+        var beanClassName = beanType.getCanonicalName();
+
+        var event = BeanDefinitionRegisteredEvent.builder()
+                .beanClassName(beanClassName)
+                .beanName(beanName)
+                .dependencies(dependencies.toArray(String[]::new))
+                .generated(true)
                 .build();
         event.commit();
     }
