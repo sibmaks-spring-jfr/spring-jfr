@@ -35,7 +35,8 @@ public class JpaRepositoryJavaFlightRecorderAspect {
         event.commit();
 
         try {
-            var result = joinPoint.proceed();
+            var args = joinPoint.getArgs();
+            var result = joinPoint.proceed(args);
 
             var finishedEvent = JPAMethodExecutedEvent.builder()
                     .invocationId(invocationId)

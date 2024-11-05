@@ -32,7 +32,8 @@ public class SchedulerJavaFlightRecorderAspect {
         event.commit();
 
         try {
-            var result = joinPoint.proceed();
+            var args = joinPoint.getArgs();
+            var result = joinPoint.proceed(args);
 
             var finishedEvent = ScheduledMethodExecutedEvent.builder()
                     .invocationId(invocationId)

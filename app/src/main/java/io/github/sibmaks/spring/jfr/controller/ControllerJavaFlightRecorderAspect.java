@@ -52,7 +52,8 @@ public class ControllerJavaFlightRecorderAspect {
         event.commit();
 
         try {
-            var result = joinPoint.proceed();
+            var args = joinPoint.getArgs();
+            var result = joinPoint.proceed(args);
 
             var finishedEvent = ControllerMethodExecutedEvent.builder()
                     .invocationId(invocationId)
