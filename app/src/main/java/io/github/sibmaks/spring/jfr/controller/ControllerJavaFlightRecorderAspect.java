@@ -27,7 +27,7 @@ public class ControllerJavaFlightRecorderAspect {
     }
 
     @Around(value = "controllerMethods(controller)", argNames = "joinPoint,controller")
-    public Object traceRestController(ProceedingJoinPoint joinPoint, Controller controller) throws Throwable {
+    public Object traceController(ProceedingJoinPoint joinPoint, Controller controller) throws Throwable {
         var requestAttributes = RequestContextHolder.getRequestAttributes();
         String url = null;
         String method = null;
