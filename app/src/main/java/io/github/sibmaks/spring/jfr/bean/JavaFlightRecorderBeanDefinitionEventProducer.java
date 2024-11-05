@@ -33,6 +33,11 @@ public final class JavaFlightRecorderBeanDefinitionEventProducer implements Bean
     }
 
     private void produce(String beanName, Class<?> beanType) {
+        if (!beanFactory.containsBeanDefinition(beanName)) {
+            produceGenerated(beanName, beanType);
+            return;
+        }
+
         var beanDefinition = beanFactory.getMergedBeanDefinition(beanName);
 
         var dependencies = Optional.ofNullable(beanDefinition.getDependsOn())
