@@ -1,4 +1,4 @@
-package io.github.sibmaks.spring.jfr;
+package io.github.sibmaks.spring.jfr.core;
 
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;

@@ -1,4 +1,4 @@
-package io.github.sibmaks.spring.jfr;
+package io.github.sibmaks.spring.jfr.core;
 
 import java.lang.annotation.*;
 

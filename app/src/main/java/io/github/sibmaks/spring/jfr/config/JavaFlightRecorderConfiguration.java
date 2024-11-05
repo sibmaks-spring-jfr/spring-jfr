@@ -1,7 +1,7 @@
 package io.github.sibmaks.spring.jfr.config;
 
-import io.github.sibmaks.spring.jfr.JavaFlightRecorderConditional;
-import io.github.sibmaks.spring.jfr.JavaFlightRecorderProperty;
+import io.github.sibmaks.spring.jfr.core.JavaFlightRecorderConditional;
+import io.github.sibmaks.spring.jfr.core.JavaFlightRecorderProperty;
 import io.github.sibmaks.spring.jfr.async.AsyncJavaFlightRecorderAspect;
 import io.github.sibmaks.spring.jfr.bean.JavaFlightRecorderBeanDefinitionEventProducer;
 import io.github.sibmaks.spring.jfr.bean.JavaFlightRecorderBeanPostProcessor;
