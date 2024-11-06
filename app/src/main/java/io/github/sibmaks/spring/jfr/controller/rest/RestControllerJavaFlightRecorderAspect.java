@@ -1,10 +1,14 @@
 package io.github.sibmaks.spring.jfr.controller.rest;
 
-import io.github.sibmaks.spring.jfr.event.controller.RestControllerInvocationEvent;
+import io.github.sibmaks.spring.jfr.core.InvocationContext;
+import io.github.sibmaks.spring.jfr.event.controller.ControllerMethodCalledEvent;
+import io.github.sibmaks.spring.jfr.event.controller.ControllerMethodExecutedEvent;
+import io.github.sibmaks.spring.jfr.event.controller.ControllerMethodFailedEvent;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -33,20 +37,41 @@ public class RestControllerJavaFlightRecorderAspect {
             url = rq.getRequestURI();
             method = rq.getMethod();
         }
-        var event = new RestControllerInvocationEvent(
-                joinPoint.getSignature().toString(),
-                method,
-                url
-        );
+        var invocationId = InvocationContext.startTrace();
+        var signature = joinPoint.getSignature();
+        var methodSignature = (MethodSignature) signature;
 
-        event.begin();
+        var event = ControllerMethodCalledEvent.builder()
+                .invocationId(invocationId)
+                .className(methodSignature.getDeclaringType().getCanonicalName())
+                .methodName(methodSignature.getName())
+                .rest(true)
+                .method(method)
+                .url(url)
+                .build();
+        event.commit();
+
         try {
-            return joinPoint.proceed();
+            var args = joinPoint.getArgs();
+            var result = joinPoint.proceed(args);
+
+            var finishedEvent = ControllerMethodExecutedEvent.builder()
+                    .invocationId(invocationId)
+                    .build();
+            finishedEvent.commit();
+
+            return result;
         } catch (Throwable throwable) {
-            event.setException(throwable.toString());
+            var failEvent = ControllerMethodFailedEvent.builder()
+                    .invocationId(invocationId)
+                    .exceptionClass(throwable.getClass().getCanonicalName())
+                    .exceptionMessage(throwable.getMessage())
+                    .build();
+            failEvent.commit();
+
             throw throwable;
         } finally {
-            event.commit();
+            InvocationContext.stopTrace(invocationId);
         }
     }
 }
