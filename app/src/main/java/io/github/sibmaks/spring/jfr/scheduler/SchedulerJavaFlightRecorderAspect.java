@@ -9,10 +9,16 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Scheduled;
 
 @Aspect
 public class SchedulerJavaFlightRecorderAspect {
+    private final ApplicationContext applicationContext;
+
+    public SchedulerJavaFlightRecorderAspect(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
 
     @Pointcut("@annotation(scheduled)")
     public void scheduledMethods(Scheduled scheduled) {
@@ -20,11 +26,13 @@ public class SchedulerJavaFlightRecorderAspect {
 
     @Around(value = "scheduledMethods(scheduled)", argNames = "joinPoint,scheduled")
     public Object traceScheduledMethods(ProceedingJoinPoint joinPoint, Scheduled scheduled) throws Throwable {
+        var contextId = applicationContext.getId();
         var invocationId = InvocationContext.startTrace();
         var signature = joinPoint.getSignature();
         var methodSignature = (MethodSignature) signature;
 
         var event = ScheduledMethodInvokedEvent.builder()
+                .contextId(contextId)
                 .invocationId(invocationId)
                 .className(methodSignature.getDeclaringType().getCanonicalName())
                 .methodName(methodSignature.getName())

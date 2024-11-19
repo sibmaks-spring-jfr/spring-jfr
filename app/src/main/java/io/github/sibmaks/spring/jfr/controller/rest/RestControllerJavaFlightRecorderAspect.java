@@ -9,6 +9,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -21,6 +22,11 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  */
 @Aspect
 public class RestControllerJavaFlightRecorderAspect {
+    private final ApplicationContext applicationContext;
+
+    public RestControllerJavaFlightRecorderAspect(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
 
     @Pointcut("@within(restController) && execution(* *(..))")
     public void restControllerMethods(RestController restController) {
@@ -37,11 +43,13 @@ public class RestControllerJavaFlightRecorderAspect {
             url = rq.getRequestURI();
             method = rq.getMethod();
         }
+        var contextId = applicationContext.getId();
         var invocationId = InvocationContext.startTrace();
         var signature = joinPoint.getSignature();
         var methodSignature = (MethodSignature) signature;
 
         var event = ControllerMethodCalledEvent.builder()
+                .contextId(contextId)
                 .invocationId(invocationId)
                 .className(methodSignature.getDeclaringType().getCanonicalName())
                 .methodName(methodSignature.getName())

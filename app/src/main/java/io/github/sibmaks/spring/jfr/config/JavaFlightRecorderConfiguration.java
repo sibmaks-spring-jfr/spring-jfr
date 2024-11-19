@@ -10,6 +10,7 @@ import io.github.sibmaks.spring.jfr.controller.rest.RestControllerJavaFlightReco
 import io.github.sibmaks.spring.jfr.jpa.JpaRepositoryJavaFlightRecorderAspect;
 import io.github.sibmaks.spring.jfr.scheduler.SchedulerJavaFlightRecorderAspect;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -32,8 +33,10 @@ public class JavaFlightRecorderConfiguration {
             }
     )
 
-    public static JavaFlightRecorderBeanPostProcessor javaFlightRecorderBeanPostProcessor() {
-        return new JavaFlightRecorderBeanPostProcessor();
+    public static JavaFlightRecorderBeanPostProcessor javaFlightRecorderBeanPostProcessor(
+            ApplicationContext applicationContext
+    ) {
+        return new JavaFlightRecorderBeanPostProcessor(applicationContext);
     }
 
     @Bean
@@ -47,9 +50,10 @@ public class JavaFlightRecorderConfiguration {
     )
 
     public static JavaFlightRecorderBeanDefinitionEventProducer javaFlightRecorderBeanDefinitionEventProducer(
+            ApplicationContext applicationContext,
             ConfigurableListableBeanFactory beanFactory
     ) {
-        return new JavaFlightRecorderBeanDefinitionEventProducer(beanFactory);
+        return new JavaFlightRecorderBeanDefinitionEventProducer(applicationContext, beanFactory);
     }
 
     @Bean
@@ -61,8 +65,10 @@ public class JavaFlightRecorderConfiguration {
                     )
             }
     )
-    public static JpaRepositoryJavaFlightRecorderAspect jpaRepositoryJavaFlightRecorderAspect() {
-        return new JpaRepositoryJavaFlightRecorderAspect();
+    public static JpaRepositoryJavaFlightRecorderAspect jpaRepositoryJavaFlightRecorderAspect(
+            ApplicationContext applicationContext
+    ) {
+        return new JpaRepositoryJavaFlightRecorderAspect(applicationContext);
     }
 
     @Bean
@@ -75,8 +81,10 @@ public class JavaFlightRecorderConfiguration {
                     )
             }
     )
-    public static ControllerJavaFlightRecorderAspect controllerJavaFlightRecorderAspect() {
-        return new ControllerJavaFlightRecorderAspect();
+    public static ControllerJavaFlightRecorderAspect controllerJavaFlightRecorderAspect(
+            ApplicationContext applicationContext
+    ) {
+        return new ControllerJavaFlightRecorderAspect(applicationContext);
     }
 
     @Bean
@@ -89,8 +97,10 @@ public class JavaFlightRecorderConfiguration {
                     )
             }
     )
-    public static RestControllerJavaFlightRecorderAspect restControllerJavaFlightRecorderAspect() {
-        return new RestControllerJavaFlightRecorderAspect();
+    public static RestControllerJavaFlightRecorderAspect restControllerJavaFlightRecorderAspect(
+            ApplicationContext applicationContext
+    ) {
+        return new RestControllerJavaFlightRecorderAspect(applicationContext);
     }
 
     @Bean
@@ -103,8 +113,10 @@ public class JavaFlightRecorderConfiguration {
                     )
             }
     )
-    public static SchedulerJavaFlightRecorderAspect schedulerJavaFlightRecorderAspect() {
-        return new SchedulerJavaFlightRecorderAspect();
+    public static SchedulerJavaFlightRecorderAspect schedulerJavaFlightRecorderAspect(
+            ApplicationContext applicationContext
+    ) {
+        return new SchedulerJavaFlightRecorderAspect(applicationContext);
     }
 
     @Bean
@@ -117,8 +129,12 @@ public class JavaFlightRecorderConfiguration {
                     )
             }
     )
-    public static AsyncJavaFlightRecorderAspect asyncJavaFlightRecorderAspect() {
-        return new AsyncJavaFlightRecorderAspect();
+    public static AsyncJavaFlightRecorderAspect asyncJavaFlightRecorderAspect(
+            ApplicationContext applicationContext
+    ) {
+        return new AsyncJavaFlightRecorderAspect(
+                applicationContext
+        );
     }
 
 }

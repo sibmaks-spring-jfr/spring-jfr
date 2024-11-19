@@ -9,11 +9,17 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.context.ApplicationContext;
 
 import java.util.UUID;
 
 @Aspect
 public class JpaRepositoryJavaFlightRecorderAspect {
+    private final ApplicationContext applicationContext;
+
+    public JpaRepositoryJavaFlightRecorderAspect(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
 
     @Pointcut("execution(* org.springframework.data.jpa.repository.JpaRepository+.*(..))")
     public void jpaRepositoryMethods() {
@@ -21,12 +27,14 @@ public class JpaRepositoryJavaFlightRecorderAspect {
 
     @Around("jpaRepositoryMethods()")
     public Object traceJpaRepository(ProceedingJoinPoint joinPoint) throws Throwable {
+        var contextId = applicationContext.getId();
         var correlationId = InvocationContext.getTraceId();
         var invocationId = UUID.randomUUID().toString();
         var signature = joinPoint.getSignature();
         var methodSignature = (MethodSignature) signature;
 
         var event = JPAMethodInvokedEvent.builder()
+                .contextId(contextId)
                 .correlationId(correlationId)
                 .invocationId(invocationId)
                 .className(methodSignature.getDeclaringType().getCanonicalName())

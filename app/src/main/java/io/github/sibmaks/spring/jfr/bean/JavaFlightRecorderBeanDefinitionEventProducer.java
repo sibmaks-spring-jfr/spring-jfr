@@ -6,6 +6,7 @@ import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.context.ApplicationContext;
 
 import java.util.HashSet;
 import java.util.List;
@@ -16,9 +17,14 @@ import java.util.Optional;
  * @since 0.0.2
  */
 public final class JavaFlightRecorderBeanDefinitionEventProducer implements BeanPostProcessor {
+    private final ApplicationContext applicationContext;
     private final ConfigurableListableBeanFactory beanFactory;
 
-    public JavaFlightRecorderBeanDefinitionEventProducer(ConfigurableListableBeanFactory beanFactory) {
+    public JavaFlightRecorderBeanDefinitionEventProducer(
+            ApplicationContext applicationContext,
+            ConfigurableListableBeanFactory beanFactory
+    ) {
+        this.applicationContext = applicationContext;
         this.beanFactory = beanFactory;
     }
 
@@ -58,7 +64,9 @@ public final class JavaFlightRecorderBeanDefinitionEventProducer implements Bean
         var beanClassName = Optional.ofNullable(beanDefinition.getBeanClassName())
                 .orElse(beanType.getCanonicalName());
 
+        var contextId = applicationContext.getId();
         var event = BeanDefinitionRegisteredEvent.builder()
+                .contextId(contextId)
                 .scope(scope)
                 .beanClassName(beanClassName)
                 .beanName(beanName)
@@ -75,9 +83,11 @@ public final class JavaFlightRecorderBeanDefinitionEventProducer implements Bean
                 .map(HashSet::new)
                 .orElseGet(HashSet::new);
 
+        var contextId = applicationContext.getId();
         var beanClassName = beanType.getCanonicalName();
 
         var event = BeanDefinitionRegisteredEvent.builder()
+                .contextId(contextId)
                 .beanClassName(beanClassName)
                 .beanName(beanName)
                 .dependencies(dependencies.toArray(String[]::new))

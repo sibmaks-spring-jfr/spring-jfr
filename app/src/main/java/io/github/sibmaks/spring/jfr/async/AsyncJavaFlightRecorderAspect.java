@@ -6,12 +6,18 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Async;
 
 import java.util.concurrent.Future;
 
 @Aspect
 public class AsyncJavaFlightRecorderAspect {
+    private final ApplicationContext applicationContext;
+
+    public AsyncJavaFlightRecorderAspect(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
 
     @Pointcut("@annotation(async)")
     public void asyncMethods(Async async) {
@@ -21,10 +27,13 @@ public class AsyncJavaFlightRecorderAspect {
     public Object traceAsyncMethods(ProceedingJoinPoint joinPoint, Async async) throws Throwable {
         var signature = joinPoint.getSignature();
         var methodSignature = (MethodSignature) signature;
-        var event = new AsyncInvocationEvent(
-                methodSignature.getDeclaringType().getCanonicalName(),
-                methodSignature.getName()
-        );
+
+        var contextId = applicationContext.getId();
+        var event = AsyncInvocationEvent.builder()
+                .contextId(contextId)
+                .className(methodSignature.getDeclaringType().getCanonicalName())
+                .methodName(methodSignature.getName())
+                .build();
         event.begin();
         Object result;
         try {
