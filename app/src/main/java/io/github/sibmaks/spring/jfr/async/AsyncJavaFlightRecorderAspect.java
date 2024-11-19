@@ -1,22 +1,22 @@
 package io.github.sibmaks.spring.jfr.async;
 
+import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.event.async.AsyncInvocationEvent;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Async;
 
 import java.util.concurrent.Future;
 
 @Aspect
 public class AsyncJavaFlightRecorderAspect {
-    private final ApplicationContext applicationContext;
+    private final ContextIdProvider contextIdProvider;
 
-    public AsyncJavaFlightRecorderAspect(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
+    public AsyncJavaFlightRecorderAspect(ContextIdProvider contextIdProvider) {
+        this.contextIdProvider = contextIdProvider;
     }
 
     @Pointcut("@annotation(async)")
@@ -28,7 +28,7 @@ public class AsyncJavaFlightRecorderAspect {
         var signature = joinPoint.getSignature();
         var methodSignature = (MethodSignature) signature;
 
-        var contextId = applicationContext.getId();
+        var contextId = contextIdProvider.getContextId();
         var event = AsyncInvocationEvent.builder()
                 .contextId(contextId)
                 .className(methodSignature.getDeclaringType().getCanonicalName())

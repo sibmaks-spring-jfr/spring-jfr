@@ -1,22 +1,21 @@
 package io.github.sibmaks.spring.jfr.bean;
 
+import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.event.bean.PostProcessAfterInitializationEvent;
 import io.github.sibmaks.spring.jfr.event.bean.PostProcessBeforeInitializationEvent;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.context.ApplicationContext;
 
 public class JavaFlightRecorderBeanPostProcessor implements BeanPostProcessor {
-    private final ApplicationContext applicationContext;
+    private final ContextIdProvider contextIdProvider;
 
-    public JavaFlightRecorderBeanPostProcessor(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
+    public JavaFlightRecorderBeanPostProcessor(ContextIdProvider contextIdProvider) {
+        this.contextIdProvider = contextIdProvider;
     }
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        var contextId = applicationContext.getId();
+        var contextId = contextIdProvider.getContextId();
         var event = PostProcessBeforeInitializationEvent.builder()
                 .contextId(contextId)
                 .beanName(beanName)
@@ -27,7 +26,7 @@ public class JavaFlightRecorderBeanPostProcessor implements BeanPostProcessor {
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        var contextId = applicationContext.getId();
+        var contextId = contextIdProvider.getContextId();
         var event = PostProcessAfterInitializationEvent.builder()
                 .contextId(contextId)
                 .beanName(beanName)

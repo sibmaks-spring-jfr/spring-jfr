@@ -1,5 +1,6 @@
 package io.github.sibmaks.spring.jfr.controller.rest;
 
+import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.core.InvocationContext;
 import io.github.sibmaks.spring.jfr.event.controller.ControllerMethodCalledEvent;
 import io.github.sibmaks.spring.jfr.event.controller.ControllerMethodExecutedEvent;
@@ -9,7 +10,6 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -22,10 +22,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  */
 @Aspect
 public class RestControllerJavaFlightRecorderAspect {
-    private final ApplicationContext applicationContext;
+    private final ContextIdProvider contextIdProvider;
 
-    public RestControllerJavaFlightRecorderAspect(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
+    public RestControllerJavaFlightRecorderAspect(ContextIdProvider contextIdProvider) {
+        this.contextIdProvider = contextIdProvider;
     }
 
     @Pointcut("@within(restController) && execution(* *(..))")
@@ -43,7 +43,7 @@ public class RestControllerJavaFlightRecorderAspect {
             url = rq.getRequestURI();
             method = rq.getMethod();
         }
-        var contextId = applicationContext.getId();
+        var contextId = contextIdProvider.getContextId();
         var invocationId = InvocationContext.startTrace();
         var signature = joinPoint.getSignature();
         var methodSignature = (MethodSignature) signature;

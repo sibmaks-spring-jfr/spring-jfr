@@ -1,5 +1,6 @@
 package io.github.sibmaks.spring.jfr.jpa;
 
+import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.core.InvocationContext;
 import io.github.sibmaks.spring.jfr.event.jpa.JPAMethodExecutedEvent;
 import io.github.sibmaks.spring.jfr.event.jpa.JPAMethodFailedEvent;
@@ -9,16 +10,15 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.context.ApplicationContext;
 
 import java.util.UUID;
 
 @Aspect
 public class JpaRepositoryJavaFlightRecorderAspect {
-    private final ApplicationContext applicationContext;
+    private final ContextIdProvider contextIdProvider;
 
-    public JpaRepositoryJavaFlightRecorderAspect(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
+    public JpaRepositoryJavaFlightRecorderAspect(ContextIdProvider contextIdProvider) {
+        this.contextIdProvider = contextIdProvider;
     }
 
     @Pointcut("execution(* org.springframework.data.jpa.repository.JpaRepository+.*(..))")
@@ -27,7 +27,7 @@ public class JpaRepositoryJavaFlightRecorderAspect {
 
     @Around("jpaRepositoryMethods()")
     public Object traceJpaRepository(ProceedingJoinPoint joinPoint) throws Throwable {
-        var contextId = applicationContext.getId();
+        var contextId = contextIdProvider.getContextId();
         var correlationId = InvocationContext.getTraceId();
         var invocationId = UUID.randomUUID().toString();
         var signature = joinPoint.getSignature();

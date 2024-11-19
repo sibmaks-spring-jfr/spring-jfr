@@ -1,5 +1,6 @@
 package io.github.sibmaks.spring.jfr.scheduler;
 
+import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.core.InvocationContext;
 import io.github.sibmaks.spring.jfr.event.scheduled.ScheduledMethodExecutedEvent;
 import io.github.sibmaks.spring.jfr.event.scheduled.ScheduledMethodFailedEvent;
@@ -9,15 +10,14 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Scheduled;
 
 @Aspect
 public class SchedulerJavaFlightRecorderAspect {
-    private final ApplicationContext applicationContext;
+    private final ContextIdProvider contextIdProvider;
 
-    public SchedulerJavaFlightRecorderAspect(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
+    public SchedulerJavaFlightRecorderAspect(ContextIdProvider contextIdProvider) {
+        this.contextIdProvider = contextIdProvider;
     }
 
     @Pointcut("@annotation(scheduled)")
@@ -26,7 +26,7 @@ public class SchedulerJavaFlightRecorderAspect {
 
     @Around(value = "scheduledMethods(scheduled)", argNames = "joinPoint,scheduled")
     public Object traceScheduledMethods(ProceedingJoinPoint joinPoint, Scheduled scheduled) throws Throwable {
-        var contextId = applicationContext.getId();
+        var contextId = contextIdProvider.getContextId();
         var invocationId = InvocationContext.startTrace();
         var signature = joinPoint.getSignature();
         var methodSignature = (MethodSignature) signature;
