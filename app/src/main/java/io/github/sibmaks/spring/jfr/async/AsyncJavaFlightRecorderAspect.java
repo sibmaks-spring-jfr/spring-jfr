@@ -1,7 +1,9 @@
 package io.github.sibmaks.spring.jfr.async;
 
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
-import io.github.sibmaks.spring.jfr.event.async.AsyncInvocationEvent;
+import io.github.sibmaks.spring.jfr.core.InvocationContext;
+import io.github.sibmaks.spring.jfr.event.publish.async.AsyncMethodCalledEvent;
+import io.github.sibmaks.spring.jfr.event.publish.async.AsyncMethodFailedEvent;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -9,6 +11,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.scheduling.annotation.Async;
 
+import java.util.UUID;
 import java.util.concurrent.Future;
 
 @Aspect
@@ -29,25 +32,32 @@ public class AsyncJavaFlightRecorderAspect {
         var methodSignature = (MethodSignature) signature;
 
         var contextId = contextIdProvider.getContextId();
-        var event = AsyncInvocationEvent.builder()
+        var correlationId = InvocationContext.getTraceId();
+        var invocationId = UUID.randomUUID().toString();
+
+        AsyncMethodCalledEvent.builder()
                 .contextId(contextId)
+                .correlationId(correlationId)
+                .invocationId(invocationId)
                 .className(methodSignature.getDeclaringType().getCanonicalName())
                 .methodName(methodSignature.getName())
-                .build();
-        event.begin();
+                .build()
+                .commit();
         Object result;
         try {
             var args = joinPoint.getArgs();
             result = joinPoint.proceed(args);
 
             if (result instanceof Future<?>) {
-                return new InstrumentedFuture<>((Future<?>) result, event);
-            } else {
-                event.commit();
+                return new InstrumentedFuture<>((Future<?>) result, invocationId);
             }
         } catch (Throwable throwable) {
-            event.setException(throwable.toString());
-            event.commit();
+            AsyncMethodFailedEvent.builder()
+                    .invocationId(invocationId)
+                    .exceptionClass(throwable.getClass().getCanonicalName())
+                    .exceptionMessage(throwable.getMessage())
+                    .build()
+                    .commit();
             throw throwable;
         }
 

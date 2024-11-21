@@ -1,7 +1,8 @@
 package io.github.sibmaks.spring.jfr.bean;
 
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
-import io.github.sibmaks.spring.jfr.event.bean.BeanDefinitionRegisteredEvent;
+import io.github.sibmaks.spring.jfr.event.core.converter.DependencyConverter;
+import io.github.sibmaks.spring.jfr.event.publish.bean.BeanDefinitionRegisteredEvent;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -65,16 +66,16 @@ public final class JavaFlightRecorderBeanDefinitionEventProducer implements Bean
                 .orElse(beanType.getCanonicalName());
 
         var contextId = contextIdProvider.getContextId();
-        var event = BeanDefinitionRegisteredEvent.builder()
+        BeanDefinitionRegisteredEvent.builder()
                 .contextId(contextId)
                 .scope(scope)
                 .beanClassName(beanClassName)
                 .beanName(beanName)
                 .primary(String.valueOf(beanDefinition.isPrimary()))
-                .dependencies(dependencies.toArray(String[]::new))
+                .dependencies(DependencyConverter.convert(dependencies.toArray(String[]::new)))
                 .generated(false)
-                .build();
-        event.commit();
+                .build()
+                .commit();
     }
 
     private void produceGenerated(String beanName, Class<?> beanType) {
@@ -90,7 +91,7 @@ public final class JavaFlightRecorderBeanDefinitionEventProducer implements Bean
                 .contextId(contextId)
                 .beanClassName(beanClassName)
                 .beanName(beanName)
-                .dependencies(dependencies.toArray(String[]::new))
+                .dependencies(DependencyConverter.convert(dependencies.toArray(String[]::new)))
                 .generated(true)
                 .build();
         event.commit();

@@ -1,7 +1,9 @@
 package io.github.sibmaks.spring.jfr.async;
 
 
-import io.github.sibmaks.spring.jfr.event.async.AsyncInvocationEvent;
+import io.github.sibmaks.spring.jfr.core.InvocationContext;
+import io.github.sibmaks.spring.jfr.event.publish.async.AsyncMethodExecutedEvent;
+import io.github.sibmaks.spring.jfr.event.publish.async.AsyncMethodFailedEvent;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -11,11 +13,11 @@ import java.util.concurrent.TimeoutException;
 public class InstrumentedFuture<T> implements Future<T> {
 
     private final Future<T> originalFuture;
-    private final AsyncInvocationEvent asyncEvent;
+    private final String invocationId;
 
-    public InstrumentedFuture(Future<T> originalFuture, AsyncInvocationEvent asyncEvent) {
+    public InstrumentedFuture(Future<T> originalFuture, String invocationId) {
         this.originalFuture = originalFuture;
-        this.asyncEvent = asyncEvent;
+        this.invocationId = invocationId;
     }
 
     @Override
@@ -35,20 +37,48 @@ public class InstrumentedFuture<T> implements Future<T> {
 
     @Override
     public T get() throws InterruptedException, ExecutionException {
+        InvocationContext.startTrace(invocationId);
         try {
-            return originalFuture.get();
+            var rs = originalFuture.get();
+            AsyncMethodExecutedEvent.builder()
+                    .invocationId(invocationId)
+                    .build()
+                    .commit();
+            return rs;
+        } catch (Throwable throwable) {
+            AsyncMethodFailedEvent.builder()
+                    .invocationId(invocationId)
+                    .exceptionClass(throwable.getClass().getCanonicalName())
+                    .exceptionMessage(throwable.getMessage())
+                    .build()
+                    .commit();
+            throw throwable;
         } finally {
-            asyncEvent.commit();
+            InvocationContext.stopTrace(invocationId);
         }
     }
 
     @Override
     public T get(long timeout, TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException {
+        InvocationContext.startTrace(invocationId);
         try {
-            return originalFuture.get(timeout, unit);
+            var rs = originalFuture.get(timeout, unit);
+            AsyncMethodExecutedEvent.builder()
+                    .invocationId(invocationId)
+                    .build()
+                    .commit();
+            return rs;
+        } catch (Throwable throwable) {
+            AsyncMethodFailedEvent.builder()
+                    .invocationId(invocationId)
+                    .exceptionClass(throwable.getClass().getCanonicalName())
+                    .exceptionMessage(throwable.getMessage())
+                    .build()
+                    .commit();
+            throw throwable;
         } finally {
-            asyncEvent.commit();
+            InvocationContext.stopTrace(invocationId);
         }
     }
 }

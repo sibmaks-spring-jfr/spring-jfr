@@ -24,10 +24,14 @@ public final class InvocationContext {
     }
 
     public static String startTrace() {
-        var trace = TRACE_THREAD_LOCAL.get();
         var traceId = UUID.randomUUID().toString();
-        trace.add(traceId);
+        startTrace(traceId);
         return traceId;
+    }
+
+    public static void startTrace(String traceId) {
+        var trace = TRACE_THREAD_LOCAL.get();
+        trace.add(traceId);
     }
 
     public static void stopTrace(String invocationId) {

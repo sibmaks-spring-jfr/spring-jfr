@@ -2,16 +2,14 @@ package io.github.sibmaks.spring.jfr.jpa;
 
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.core.InvocationContext;
-import io.github.sibmaks.spring.jfr.event.jpa.JPAMethodExecutedEvent;
-import io.github.sibmaks.spring.jfr.event.jpa.JPAMethodFailedEvent;
-import io.github.sibmaks.spring.jfr.event.jpa.JPAMethodInvokedEvent;
+import io.github.sibmaks.spring.jfr.event.publish.jpa.JPAMethodCalledEvent;
+import io.github.sibmaks.spring.jfr.event.publish.jpa.JPAMethodExecutedEvent;
+import io.github.sibmaks.spring.jfr.event.publish.jpa.JPAMethodFailedEvent;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-
-import java.util.UUID;
 
 @Aspect
 public class JpaRepositoryJavaFlightRecorderAspect {
@@ -29,38 +27,40 @@ public class JpaRepositoryJavaFlightRecorderAspect {
     public Object traceJpaRepository(ProceedingJoinPoint joinPoint) throws Throwable {
         var contextId = contextIdProvider.getContextId();
         var correlationId = InvocationContext.getTraceId();
-        var invocationId = UUID.randomUUID().toString();
+        var invocationId = InvocationContext.startTrace();
         var signature = joinPoint.getSignature();
         var methodSignature = (MethodSignature) signature;
 
-        var event = JPAMethodInvokedEvent.builder()
+        JPAMethodCalledEvent.builder()
                 .contextId(contextId)
                 .correlationId(correlationId)
                 .invocationId(invocationId)
                 .className(methodSignature.getDeclaringType().getCanonicalName())
                 .methodName(methodSignature.getName())
-                .build();
-        event.commit();
+                .build()
+                .commit();
 
         try {
             var args = joinPoint.getArgs();
             var result = joinPoint.proceed(args);
 
-            var finishedEvent = JPAMethodExecutedEvent.builder()
+            JPAMethodExecutedEvent.builder()
                     .invocationId(invocationId)
-                    .build();
-            finishedEvent.commit();
+                    .build()
+                    .commit();
 
             return result;
         } catch (Throwable throwable) {
-            var failEvent = JPAMethodFailedEvent.builder()
+            JPAMethodFailedEvent.builder()
                     .invocationId(invocationId)
                     .exceptionClass(throwable.getClass().getCanonicalName())
                     .exceptionMessage(throwable.getMessage())
-                    .build();
-            failEvent.commit();
+                    .build()
+                    .commit();
 
             throw throwable;
+        } finally {
+            InvocationContext.stopTrace(invocationId);
         }
     }
 
