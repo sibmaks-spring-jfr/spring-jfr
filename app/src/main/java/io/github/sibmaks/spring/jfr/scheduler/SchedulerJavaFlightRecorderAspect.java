@@ -1,9 +1,10 @@
 package io.github.sibmaks.spring.jfr.scheduler;
 
+import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.core.InvocationContext;
-import io.github.sibmaks.spring.jfr.event.scheduled.ScheduledMethodExecutedEvent;
-import io.github.sibmaks.spring.jfr.event.scheduled.ScheduledMethodFailedEvent;
-import io.github.sibmaks.spring.jfr.event.scheduled.ScheduledMethodInvokedEvent;
+import io.github.sibmaks.spring.jfr.event.publish.scheduled.ScheduledMethodCalledEvent;
+import io.github.sibmaks.spring.jfr.event.publish.scheduled.ScheduledMethodExecutedEvent;
+import io.github.sibmaks.spring.jfr.event.publish.scheduled.ScheduledMethodFailedEvent;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -13,6 +14,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 @Aspect
 public class SchedulerJavaFlightRecorderAspect {
+    private final ContextIdProvider contextIdProvider;
+
+    public SchedulerJavaFlightRecorderAspect(ContextIdProvider contextIdProvider) {
+        this.contextIdProvider = contextIdProvider;
+    }
 
     @Pointcut("@annotation(scheduled)")
     public void scheduledMethods(Scheduled scheduled) {
@@ -20,34 +26,36 @@ public class SchedulerJavaFlightRecorderAspect {
 
     @Around(value = "scheduledMethods(scheduled)", argNames = "joinPoint,scheduled")
     public Object traceScheduledMethods(ProceedingJoinPoint joinPoint, Scheduled scheduled) throws Throwable {
+        var contextId = contextIdProvider.getContextId();
         var invocationId = InvocationContext.startTrace();
         var signature = joinPoint.getSignature();
         var methodSignature = (MethodSignature) signature;
 
-        var event = ScheduledMethodInvokedEvent.builder()
+        ScheduledMethodCalledEvent.builder()
+                .contextId(contextId)
                 .invocationId(invocationId)
                 .className(methodSignature.getDeclaringType().getCanonicalName())
                 .methodName(methodSignature.getName())
-                .build();
-        event.commit();
+                .build()
+                .commit();
 
         try {
             var args = joinPoint.getArgs();
             var result = joinPoint.proceed(args);
 
-            var finishedEvent = ScheduledMethodExecutedEvent.builder()
+            ScheduledMethodExecutedEvent.builder()
                     .invocationId(invocationId)
-                    .build();
-            finishedEvent.commit();
+                    .build()
+                    .commit();
 
             return result;
         } catch (Throwable throwable) {
-            var failEvent = ScheduledMethodFailedEvent.builder()
+            ScheduledMethodFailedEvent.builder()
                     .invocationId(invocationId)
                     .exceptionClass(throwable.getClass().getCanonicalName())
                     .exceptionMessage(throwable.getMessage())
-                    .build();
-            failEvent.commit();
+                    .build()
+                    .commit();
 
             throw throwable;
         } finally {

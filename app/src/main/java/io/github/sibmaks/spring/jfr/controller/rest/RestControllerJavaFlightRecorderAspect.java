@@ -1,9 +1,10 @@
 package io.github.sibmaks.spring.jfr.controller.rest;
 
+import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.core.InvocationContext;
-import io.github.sibmaks.spring.jfr.event.controller.ControllerMethodCalledEvent;
-import io.github.sibmaks.spring.jfr.event.controller.ControllerMethodExecutedEvent;
-import io.github.sibmaks.spring.jfr.event.controller.ControllerMethodFailedEvent;
+import io.github.sibmaks.spring.jfr.event.publish.controller.ControllerMethodCalledEvent;
+import io.github.sibmaks.spring.jfr.event.publish.controller.ControllerMethodExecutedEvent;
+import io.github.sibmaks.spring.jfr.event.publish.controller.ControllerMethodFailedEvent;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -21,6 +22,11 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  */
 @Aspect
 public class RestControllerJavaFlightRecorderAspect {
+    private final ContextIdProvider contextIdProvider;
+
+    public RestControllerJavaFlightRecorderAspect(ContextIdProvider contextIdProvider) {
+        this.contextIdProvider = contextIdProvider;
+    }
 
     @Pointcut("@within(restController) && execution(* *(..))")
     public void restControllerMethods(RestController restController) {
@@ -37,19 +43,21 @@ public class RestControllerJavaFlightRecorderAspect {
             url = rq.getRequestURI();
             method = rq.getMethod();
         }
+        var contextId = contextIdProvider.getContextId();
         var invocationId = InvocationContext.startTrace();
         var signature = joinPoint.getSignature();
         var methodSignature = (MethodSignature) signature;
 
-        var event = ControllerMethodCalledEvent.builder()
+        ControllerMethodCalledEvent.builder()
+                .contextId(contextId)
                 .invocationId(invocationId)
                 .className(methodSignature.getDeclaringType().getCanonicalName())
                 .methodName(methodSignature.getName())
                 .rest(true)
-                .method(method)
+                .httpMethod(method)
                 .url(url)
-                .build();
-        event.commit();
+                .build()
+                .commit();
 
         try {
             var args = joinPoint.getArgs();
