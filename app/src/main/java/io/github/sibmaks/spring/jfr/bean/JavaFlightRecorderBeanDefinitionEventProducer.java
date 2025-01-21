@@ -3,11 +3,11 @@ package io.github.sibmaks.spring.jfr.bean;
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.event.core.converter.DependencyConverter;
 import io.github.sibmaks.spring.jfr.event.publish.bean.BeanDefinitionRegisteredEvent;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.MergedBeanDefinitionPostProcessor;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 
 import java.util.HashSet;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.Optional;
  * @author sibmaks
  * @since 0.0.2
  */
-public final class JavaFlightRecorderBeanDefinitionEventProducer implements BeanPostProcessor {
+public final class JavaFlightRecorderBeanDefinitionEventProducer implements MergedBeanDefinitionPostProcessor {
     private final ContextIdProvider contextIdProvider;
     private final ConfigurableListableBeanFactory beanFactory;
 
@@ -30,13 +30,12 @@ public final class JavaFlightRecorderBeanDefinitionEventProducer implements Bean
     }
 
     @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+    public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName) {
         if (BeanFactoryUtils.isGeneratedBeanName(beanName)) {
-            produceGenerated(beanName, bean.getClass());
+            produceGenerated(beanName, beanType);
         } else {
-            produce(beanName, bean.getClass());
+            produce(beanName, beanType);
         }
-        return bean;
     }
 
     private void produce(String beanName, Class<?> beanType) {

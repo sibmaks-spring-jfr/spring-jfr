@@ -1,5 +1,5 @@
 [versions]
-spring-jfr-api = "0.0.10"
+spring-jfr-api = "0.0.11"
 spring = "5.3.37"
 spring-data = "2.7.18"
 spring-framework = "2.7.18"

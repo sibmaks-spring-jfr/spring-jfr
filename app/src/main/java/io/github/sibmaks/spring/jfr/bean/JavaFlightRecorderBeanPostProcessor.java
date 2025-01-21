@@ -2,11 +2,12 @@ package io.github.sibmaks.spring.jfr.bean;
 
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.event.publish.bean.PostProcessAfterInitializationEvent;
+import io.github.sibmaks.spring.jfr.event.publish.bean.PostProcessBeforeDestructionEvent;
 import io.github.sibmaks.spring.jfr.event.publish.bean.PostProcessBeforeInitializationEvent;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.DestructionAwareBeanPostProcessor;
 
-public class JavaFlightRecorderBeanPostProcessor implements BeanPostProcessor {
+public class JavaFlightRecorderBeanPostProcessor implements DestructionAwareBeanPostProcessor {
     private final ContextIdProvider contextIdProvider;
 
     public JavaFlightRecorderBeanPostProcessor(ContextIdProvider contextIdProvider) {
@@ -33,5 +34,15 @@ public class JavaFlightRecorderBeanPostProcessor implements BeanPostProcessor {
                 .build()
                 .commit();
         return bean;
+    }
+
+    @Override
+    public void postProcessBeforeDestruction(Object bean, String beanName) throws BeansException {
+        var contextId = contextIdProvider.getContextId();
+        PostProcessBeforeDestructionEvent.builder()
+                .contextId(contextId)
+                .beanName(beanName)
+                .build()
+                .commit();
     }
 }
