@@ -2,12 +2,11 @@ package io.github.sibmaks.spring.jfr.bean;
 
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.event.core.converter.DependencyConverter;
-import io.github.sibmaks.spring.jfr.event.publish.bean.BeanDefinitionRegisteredEvent;
-import org.springframework.beans.BeansException;
+import io.github.sibmaks.spring.jfr.event.publish.bean.MergedBeanDefinitionRegisteredEvent;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import org.springframework.beans.factory.support.MergedBeanDefinitionPostProcessor;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 
 import java.util.HashSet;
 import java.util.List;
@@ -15,24 +14,32 @@ import java.util.Optional;
 
 /**
  * @author sibmaks
- * @since 0.0.2
+ * @since 0.0.12
  */
-public final class JavaFlightRecorderBeanDefinitionEventProducer implements BeanDefinitionRegistryPostProcessor {
+public final class JavaFlightRecorderMergedBeanDefinitionEventProducer implements MergedBeanDefinitionPostProcessor {
     private final ContextIdProvider contextIdProvider;
+    private final ConfigurableListableBeanFactory beanFactory;
 
-    public JavaFlightRecorderBeanDefinitionEventProducer(
-            ContextIdProvider contextIdProvider
+    public JavaFlightRecorderMergedBeanDefinitionEventProducer(
+            ContextIdProvider contextIdProvider,
+            ConfigurableListableBeanFactory beanFactory
     ) {
         this.contextIdProvider = contextIdProvider;
+        this.beanFactory = beanFactory;
     }
 
-    private void produce(
-            ConfigurableListableBeanFactory beanFactory,
-            String beanName,
-            Class<?> beanType
-    ) {
+    @Override
+    public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName) {
+        if (BeanFactoryUtils.isGeneratedBeanName(beanName)) {
+            produceGenerated(beanName, beanType);
+        } else {
+            produce(beanName, beanType);
+        }
+    }
+
+    private void produce(String beanName, Class<?> beanType) {
         if (!beanFactory.containsBeanDefinition(beanName)) {
-            produceGenerated(beanFactory, beanName, beanType);
+            produceGenerated(beanName, beanType);
             return;
         }
 
@@ -43,14 +50,10 @@ public final class JavaFlightRecorderBeanDefinitionEventProducer implements Bean
         var scope = BeanDefinitions.getScope(beanDefinition);
 
         var beanClassName = Optional.ofNullable(beanDefinition.getBeanClassName())
-                .or(
-                        () -> Optional.ofNullable(beanType)
-                                .map(Class::getCanonicalName)
-                )
-                .orElse(null);
+                .orElse(beanType.getCanonicalName());
 
         var contextId = contextIdProvider.getContextId();
-        BeanDefinitionRegisteredEvent.builder()
+        MergedBeanDefinitionRegisteredEvent.builder()
                 .contextId(contextId)
                 .scope(scope)
                 .beanClassName(beanClassName)
@@ -63,22 +66,16 @@ public final class JavaFlightRecorderBeanDefinitionEventProducer implements Bean
                 .commit();
     }
 
-    private void produceGenerated(
-            ConfigurableListableBeanFactory beanFactory,
-            String beanName,
-            Class<?> beanType
-    ) {
+    private void produceGenerated(String beanName, Class<?> beanType) {
         var dependencies = Optional.of(beanFactory.getDependenciesForBean(beanName))
                 .map(List::of)
                 .map(HashSet::new)
                 .orElseGet(HashSet::new);
 
         var contextId = contextIdProvider.getContextId();
-        var beanClassName = Optional.ofNullable(beanType)
-                .map(Class::getCanonicalName)
-                .orElse(null);
+        var beanClassName = beanType.getCanonicalName();
 
-        BeanDefinitionRegisteredEvent.builder()
+        MergedBeanDefinitionRegisteredEvent.builder()
                 .contextId(contextId)
                 .beanClassName(beanClassName)
                 .beanName(beanName)
@@ -86,24 +83,5 @@ public final class JavaFlightRecorderBeanDefinitionEventProducer implements Bean
                 .generated(true)
                 .build()
                 .commit();
-    }
-
-    @Override
-    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-
-    }
-
-    @Override
-    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-        var beanDefinitionNames = beanFactory.getBeanDefinitionNames();
-
-        for (var beanName : beanDefinitionNames) {
-            var beanType = beanFactory.getType(beanName);
-            if (BeanFactoryUtils.isGeneratedBeanName(beanName)) {
-                produceGenerated(beanFactory, beanName, beanType);
-            } else {
-                produce(beanFactory, beanName, beanType);
-            }
-        }
     }
 }

@@ -3,6 +3,7 @@ package io.github.sibmaks.spring.jfr.config;
 import io.github.sibmaks.spring.jfr.async.AsyncJavaFlightRecorderAspect;
 import io.github.sibmaks.spring.jfr.bean.JavaFlightRecorderBeanDefinitionEventProducer;
 import io.github.sibmaks.spring.jfr.bean.JavaFlightRecorderBeanPostProcessor;
+import io.github.sibmaks.spring.jfr.bean.JavaFlightRecorderMergedBeanDefinitionEventProducer;
 import io.github.sibmaks.spring.jfr.component.ComponentRepositoryJavaFlightRecorderAspect;
 import io.github.sibmaks.spring.jfr.controller.ControllerJavaFlightRecorderAspect;
 import io.github.sibmaks.spring.jfr.controller.rest.RestControllerJavaFlightRecorderAspect;
@@ -60,10 +61,26 @@ public class JavaFlightRecorderConfiguration {
     )
 
     public static JavaFlightRecorderBeanDefinitionEventProducer javaFlightRecorderBeanDefinitionEventProducer(
+            ContextIdProvider contextIdProvider
+    ) {
+        return new JavaFlightRecorderBeanDefinitionEventProducer(contextIdProvider);
+    }
+
+    @Bean
+    @JavaFlightRecorderConditional(
+            properties = {
+                    @JavaFlightRecorderProperty(
+                            key = "spring.jfr.instrumentation.bean-definitions.enabled",
+                            value = "true"
+                    )
+            }
+    )
+
+    public static JavaFlightRecorderMergedBeanDefinitionEventProducer javaFlightRecorderMergedBeanDefinitionEventProducer(
             ContextIdProvider contextIdProvider,
             ConfigurableListableBeanFactory beanFactory
     ) {
-        return new JavaFlightRecorderBeanDefinitionEventProducer(contextIdProvider, beanFactory);
+        return new JavaFlightRecorderMergedBeanDefinitionEventProducer(contextIdProvider, beanFactory);
     }
 
     @Bean
