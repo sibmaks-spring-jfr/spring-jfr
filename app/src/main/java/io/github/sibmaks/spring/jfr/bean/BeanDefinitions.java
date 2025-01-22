@@ -50,8 +50,7 @@ public final class BeanDefinitions {
 
     private static boolean isAnnotationPresent(Class<?> type, String annotationClassName) {
         try {
-            var classLoader = type.getClassLoader();
-            var annotationType = classLoader.loadClass(annotationClassName);
+            var annotationType = Class.forName(annotationClassName);
             return type.isAnnotationPresent((Class<? extends Annotation>) annotationType);
         } catch (ClassNotFoundException e) {
             return false;
