@@ -38,16 +38,11 @@ public final class JavaFlightRecorderBeanDefinitionEventProducer implements Bean
 
         var beanDefinition = beanFactory.getMergedBeanDefinition(beanName);
 
-        var stereotype = BeanDefinitions.getStereotype(beanDefinition);
+        var beanClass = BeanDefinitions.getBeanType(beanDefinition, beanType);
+        var beanClassName = beanClass.getCanonicalName();
+        var stereotype = BeanDefinitions.getStereotype(beanClass);
         var dependencies = BeanDefinitions.getDependencies(beanFactory, beanName, beanDefinition);
         var scope = BeanDefinitions.getScope(beanDefinition);
-
-        var beanClassName = Optional.ofNullable(beanDefinition.getBeanClassName())
-                .or(
-                        () -> Optional.ofNullable(beanType)
-                                .map(Class::getCanonicalName)
-                )
-                .orElse(null);
 
         var contextId = contextIdProvider.getContextId();
         BeanDefinitionRegisteredEvent.builder()
@@ -73,6 +68,7 @@ public final class JavaFlightRecorderBeanDefinitionEventProducer implements Bean
                 .map(HashSet::new)
                 .orElseGet(HashSet::new);
 
+        var stereotype = BeanDefinitions.getStereotype(beanType);
         var contextId = contextIdProvider.getContextId();
         var beanClassName = Optional.ofNullable(beanType)
                 .map(Class::getCanonicalName)
@@ -83,6 +79,7 @@ public final class JavaFlightRecorderBeanDefinitionEventProducer implements Bean
                 .beanClassName(beanClassName)
                 .beanName(beanName)
                 .dependencies(DependencyConverter.convert(dependencies.toArray(String[]::new)))
+                .stereotype(stereotype.name())
                 .generated(true)
                 .build()
                 .commit();

@@ -45,12 +45,11 @@ public final class JavaFlightRecorderMergedBeanDefinitionEventProducer implement
 
         var beanDefinition = beanFactory.getMergedBeanDefinition(beanName);
 
-        var stereotype = BeanDefinitions.getStereotype(beanDefinition);
+        var beanClass = BeanDefinitions.getBeanType(beanDefinition, beanType);
+        var beanClassName = beanClass.getCanonicalName();
+        var stereotype = BeanDefinitions.getStereotype(beanClass);
         var dependencies = BeanDefinitions.getDependencies(beanFactory, beanName, beanDefinition);
         var scope = BeanDefinitions.getScope(beanDefinition);
-
-        var beanClassName = Optional.ofNullable(beanDefinition.getBeanClassName())
-                .orElse(beanType.getCanonicalName());
 
         var contextId = contextIdProvider.getContextId();
         MergedBeanDefinitionRegisteredEvent.builder()
@@ -72,8 +71,11 @@ public final class JavaFlightRecorderMergedBeanDefinitionEventProducer implement
                 .map(HashSet::new)
                 .orElseGet(HashSet::new);
 
+        var stereotype = BeanDefinitions.getStereotype(beanType);
         var contextId = contextIdProvider.getContextId();
-        var beanClassName = beanType.getCanonicalName();
+        var beanClassName = Optional.ofNullable(beanType)
+                .map(Class::getCanonicalName)
+                .orElse(null);
 
         MergedBeanDefinitionRegisteredEvent.builder()
                 .contextId(contextId)
@@ -81,6 +83,7 @@ public final class JavaFlightRecorderMergedBeanDefinitionEventProducer implement
                 .beanName(beanName)
                 .dependencies(DependencyConverter.convert(dependencies.toArray(String[]::new)))
                 .generated(true)
+                .stereotype(stereotype.name())
                 .build()
                 .commit();
     }

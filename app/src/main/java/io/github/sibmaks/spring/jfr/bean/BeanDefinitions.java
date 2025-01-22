@@ -1,10 +1,10 @@
 package io.github.sibmaks.spring.jfr.bean;
 
 import io.github.sibmaks.spring.jfr.event.api.bean.Stereotype;
-import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
+import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -21,35 +21,41 @@ public final class BeanDefinitions {
     }
 
     /**
-     * Get stereotype from bean definition
+     * Get stereotype from bean type
      *
-     * @param beanDefinition bean definition
+     * @param beanType bean type
      * @return stereotype
      */
-    public static Stereotype getStereotype(BeanDefinition beanDefinition) {
-        if (!(beanDefinition instanceof AnnotatedGenericBeanDefinition)) {
+    public static Stereotype getStereotype(Class<?> beanType) {
+        if (beanType == null) {
             return Stereotype.UNKNOWN;
         }
-        var annotatedBeanDefinition = (AnnotatedGenericBeanDefinition) beanDefinition;
-        var metadata = annotatedBeanDefinition.getMetadata();
-        var annotationTypes = metadata.getAnnotationTypes();
-
-        if (annotationTypes.contains("org.springframework.web.bind.annotation.RestController")) {
+        if (isAnnotationPresent(beanType, "org.springframework.web.bind.annotation.RestController")) {
             return Stereotype.REST_CONTROLLER;
         }
-        if (annotationTypes.contains("org.springframework.stereotype.Controller")) {
+        if (isAnnotationPresent(beanType, "org.springframework.stereotype.Controller")) {
             return Stereotype.CONTROLLER;
         }
-        if (annotationTypes.contains("org.springframework.stereotype.Service")) {
+        if (isAnnotationPresent(beanType, "org.springframework.stereotype.Service")) {
             return Stereotype.SERVICE;
         }
-        if (annotationTypes.contains("org.springframework.stereotype.Repository")) {
+        if (isAnnotationPresent(beanType, "org.springframework.stereotype.Repository")) {
             return Stereotype.REPOSITORY;
         }
-        if (annotationTypes.contains("org.springframework.stereotype.Component")) {
+        if (isAnnotationPresent(beanType, "org.springframework.stereotype.Component")) {
             return Stereotype.COMPONENT;
         }
         return Stereotype.UNKNOWN;
+    }
+
+    private static boolean isAnnotationPresent(Class<?> type, String annotationClassName) {
+        try {
+            var classLoader = type.getClassLoader();
+            var annotationType = classLoader.loadClass(annotationClassName);
+            return type.isAnnotationPresent((Class<? extends Annotation>) annotationType);
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
     /**
@@ -88,5 +94,24 @@ public final class BeanDefinitions {
                 .or(() -> Optional.ofNullable(beanDefinition.isSingleton() ? BeanDefinition.SCOPE_SINGLETON : null))
                 .or(() -> Optional.ofNullable(beanDefinition.isPrototype() ? BeanDefinition.SCOPE_PROTOTYPE : null))
                 .orElse("");
+    }
+
+    /**
+     * Get bean type
+     *
+     * @param beanDefinition bean definition
+     * @param defaultType    default bean type
+     * @return bean type
+     */
+    public static Class<?> getBeanType(BeanDefinition beanDefinition, Class<?> defaultType) {
+        return Optional.ofNullable(beanDefinition.getBeanClassName())
+                .flatMap(it -> {
+                    try {
+                        return Optional.of(Class.forName(it));
+                    } catch (ClassNotFoundException e) {
+                        return Optional.<Class<?>>empty();
+                    }
+                })
+                .orElse(defaultType);
     }
 }
