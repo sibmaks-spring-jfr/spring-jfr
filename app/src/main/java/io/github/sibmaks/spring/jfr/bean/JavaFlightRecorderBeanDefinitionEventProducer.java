@@ -38,9 +38,7 @@ public final class JavaFlightRecorderBeanDefinitionEventProducer implements Bean
 
         var beanDefinition = beanFactory.getMergedBeanDefinition(beanName);
 
-        var beanClass = BeanDefinitions.getBeanType(beanDefinition, beanType);
-        var beanClassName = beanClass.getCanonicalName();
-        var stereotype = BeanDefinitions.getStereotype(beanClass);
+        var stereotype = BeanDefinitions.getStereotype(beanType);
         var dependencies = BeanDefinitions.getDependencies(beanFactory, beanName, beanDefinition);
         var scope = BeanDefinitions.getScope(beanDefinition);
 
@@ -48,7 +46,8 @@ public final class JavaFlightRecorderBeanDefinitionEventProducer implements Bean
         BeanDefinitionRegisteredEvent.builder()
                 .contextId(contextId)
                 .scope(scope)
-                .beanClassName(beanClassName)
+                .actualBeanClassName(beanDefinition.getBeanClassName())
+                .beanClassName(beanType.getCanonicalName())
                 .beanName(beanName)
                 .primary(String.valueOf(beanDefinition.isPrimary()))
                 .dependencies(DependencyConverter.convert(dependencies.toArray(String[]::new)))

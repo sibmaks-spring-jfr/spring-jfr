@@ -95,22 +95,4 @@ public final class BeanDefinitions {
                 .orElse("");
     }
 
-    /**
-     * Get bean type
-     *
-     * @param beanDefinition bean definition
-     * @param defaultType    default bean type
-     * @return bean type
-     */
-    public static Class<?> getBeanType(BeanDefinition beanDefinition, Class<?> defaultType) {
-        return Optional.ofNullable(beanDefinition.getBeanClassName())
-                .flatMap(it -> {
-                    try {
-                        return Optional.of(Class.forName(it));
-                    } catch (ClassNotFoundException e) {
-                        return Optional.<Class<?>>empty();
-                    }
-                })
-                .orElse(defaultType);
-    }
 }
