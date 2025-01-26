@@ -6,14 +6,20 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.DependencyDescriptor;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 /**
  * @author sibmaks
  * @since 0.0.18
  */
 @Aspect
-public final class JavaFlightRecorderResolveDependencyEventProducer {
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public final class JavaFlightRecorderResolveDependencyEventProducer implements BeanFactoryPostProcessor {
     private final ContextIdProvider contextIdProvider;
 
     public JavaFlightRecorderResolveDependencyEventProducer(ContextIdProvider contextIdProvider) {
@@ -42,5 +48,10 @@ public final class JavaFlightRecorderResolveDependencyEventProducer {
                 .dependencyBeanName(dependencyName)
                 .build()
                 .commit();
+    }
+
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+
     }
 }
