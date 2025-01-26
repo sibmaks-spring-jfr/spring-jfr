@@ -1,9 +1,7 @@
 [versions]
-spring-jfr-api = "0.0.13"
+spring-jfr-api = "0.0.14"
 spring = "5.3.37"
 spring-data = "2.7.18"
-spring-framework = "2.7.18"
-spring-dependency-managment = "1.1.6"
 junit-jupiter = "5.10.3"
 javax-servlet = "4.0.1"
 
@@ -16,7 +14,3 @@ spring-web = { module = "org.springframework:spring-web", version.ref = "spring"
 spring-jpa = { module = "org.springframework.data:spring-data-jpa", version.ref = "spring-data" }
 javax-servlet = { module = "javax.servlet:javax.servlet-api", version.ref = "javax-servlet" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
-
-[plugins]
-spring-framework-boot = { id = "org.springframework.boot", version.ref = "spring-framework" }
-spring-dependency-managment = { id = "io.spring.dependency-management", version.ref = "spring-dependency-managment" }
