@@ -24,7 +24,11 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.spring.jfr.api)
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
+
+    implementation(libs.spring.jfr.api.common)
+    implementation(libs.spring.jfr.api.recording)
 
     compileOnly(libs.javax.servlet)
 
@@ -32,6 +36,7 @@ dependencies {
     compileOnly(libs.spring.context)
 
     compileOnly(libs.spring.jpa)
+    compileOnly(libs.zaxxer.hikariCP)
     compileOnly(libs.spring.web)
 
     testImplementation(libs.junit.jupiter)

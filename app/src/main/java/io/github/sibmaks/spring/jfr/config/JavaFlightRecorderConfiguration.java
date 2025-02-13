@@ -13,6 +13,8 @@ import io.github.sibmaks.spring.jfr.core.ContextIdProviderImpl;
 import io.github.sibmaks.spring.jfr.core.JavaFlightRecorderConditional;
 import io.github.sibmaks.spring.jfr.core.JavaFlightRecorderProperty;
 import io.github.sibmaks.spring.jfr.jpa.JpaRepositoryJavaFlightRecorderAspect;
+import io.github.sibmaks.spring.jfr.pool.jdbc.JavaFlightRecorderHikariDataSourceAspect;
+import io.github.sibmaks.spring.jfr.pool.jdbc.JavaFlightRecorderHikariDataSourceRegister;
 import io.github.sibmaks.spring.jfr.scheduler.SchedulerJavaFlightRecorderAspect;
 import io.github.sibmaks.spring.jfr.service.ServiceRepositoryJavaFlightRecorderAspect;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -211,6 +213,40 @@ public class JavaFlightRecorderConfiguration {
             ContextIdProvider contextIdProvider
     ) {
         return new ServiceRepositoryJavaFlightRecorderAspect(contextIdProvider);
+    }
+
+    @Bean
+    @JavaFlightRecorderConditional(
+            requiredClasses = "com.zaxxer.hikari.HikariDataSource",
+            properties = {
+                    @JavaFlightRecorderProperty(
+                            key = "spring.jfr.instrumentation.pool-jdbc.enabled",
+                            value = "true"
+                    )
+            }
+    )
+
+    public static JavaFlightRecorderHikariDataSourceAspect javaFlightRecorderHikariDataSourceAspect(
+            ContextIdProvider contextIdProvider
+    ) {
+        return new JavaFlightRecorderHikariDataSourceAspect(contextIdProvider);
+    }
+
+    @Bean
+    @JavaFlightRecorderConditional(
+            requiredClasses = "com.zaxxer.hikari.HikariDataSource",
+            properties = {
+                    @JavaFlightRecorderProperty(
+                            key = "spring.jfr.instrumentation.pool-jdbc.enabled",
+                            value = "true"
+                    )
+            }
+    )
+
+    public static JavaFlightRecorderHikariDataSourceRegister javaFlightRecorderHikariDataSourceRegister(
+            ContextIdProvider contextIdProvider
+    ) {
+        return new JavaFlightRecorderHikariDataSourceRegister(contextIdProvider);
     }
 
 }

@@ -2,9 +2,9 @@ package io.github.sibmaks.spring.jfr.service;
 
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.core.InvocationContext;
-import io.github.sibmaks.spring.jfr.event.publish.service.ServiceMethodCalledEvent;
-import io.github.sibmaks.spring.jfr.event.publish.service.ServiceMethodExecutedEvent;
-import io.github.sibmaks.spring.jfr.event.publish.service.ServiceMethodFailedEvent;
+import io.github.sibmaks.spring.jfr.event.recording.service.ServiceMethodCalledEvent;
+import io.github.sibmaks.spring.jfr.event.recording.service.ServiceMethodExecutedEvent;
+import io.github.sibmaks.spring.jfr.event.recording.service.ServiceMethodFailedEvent;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;

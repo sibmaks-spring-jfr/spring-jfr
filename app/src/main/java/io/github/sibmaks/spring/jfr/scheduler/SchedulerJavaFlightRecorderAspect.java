@@ -2,9 +2,9 @@ package io.github.sibmaks.spring.jfr.scheduler;
 
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.core.InvocationContext;
-import io.github.sibmaks.spring.jfr.event.publish.scheduled.ScheduledMethodCalledEvent;
-import io.github.sibmaks.spring.jfr.event.publish.scheduled.ScheduledMethodExecutedEvent;
-import io.github.sibmaks.spring.jfr.event.publish.scheduled.ScheduledMethodFailedEvent;
+import io.github.sibmaks.spring.jfr.event.recording.scheduled.ScheduledMethodCalledEvent;
+import io.github.sibmaks.spring.jfr.event.recording.scheduled.ScheduledMethodExecutedEvent;
+import io.github.sibmaks.spring.jfr.event.recording.scheduled.ScheduledMethodFailedEvent;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;

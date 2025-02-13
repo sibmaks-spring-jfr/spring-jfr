@@ -2,9 +2,9 @@ package io.github.sibmaks.spring.jfr.controller;
 
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.core.InvocationContext;
-import io.github.sibmaks.spring.jfr.event.publish.controller.ControllerMethodCalledEvent;
-import io.github.sibmaks.spring.jfr.event.publish.controller.ControllerMethodExecutedEvent;
-import io.github.sibmaks.spring.jfr.event.publish.controller.ControllerMethodFailedEvent;
+import io.github.sibmaks.spring.jfr.event.recording.controller.ControllerMethodCalledEvent;
+import io.github.sibmaks.spring.jfr.event.recording.controller.ControllerMethodExecutedEvent;
+import io.github.sibmaks.spring.jfr.event.recording.controller.ControllerMethodFailedEvent;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;

@@ -2,7 +2,7 @@ package io.github.sibmaks.spring.jfr.bean;
 
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.event.core.converter.DependencyConverter;
-import io.github.sibmaks.spring.jfr.event.publish.bean.BeanDefinitionRegisteredEvent;
+import io.github.sibmaks.spring.jfr.event.recording.bean.BeanDefinitionRegisteredEvent;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -86,7 +86,7 @@ public final class JavaFlightRecorderBeanDefinitionEventProducer implements Bean
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-
+        // not required for this implementation
     }
 
     @Override

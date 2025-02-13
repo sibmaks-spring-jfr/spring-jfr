@@ -2,8 +2,8 @@ package io.github.sibmaks.spring.jfr.async;
 
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.core.InvocationContext;
-import io.github.sibmaks.spring.jfr.event.publish.async.AsyncMethodCalledEvent;
-import io.github.sibmaks.spring.jfr.event.publish.async.AsyncMethodFailedEvent;
+import io.github.sibmaks.spring.jfr.event.recording.async.AsyncMethodCalledEvent;
+import io.github.sibmaks.spring.jfr.event.recording.async.AsyncMethodFailedEvent;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;

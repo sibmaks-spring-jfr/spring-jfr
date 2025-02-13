@@ -2,7 +2,7 @@ package io.github.sibmaks.spring.jfr.bean;
 
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.event.core.converter.DependencyConverter;
-import io.github.sibmaks.spring.jfr.event.publish.bean.MergedBeanDefinitionRegisteredEvent;
+import io.github.sibmaks.spring.jfr.event.recording.bean.MergedBeanDefinitionRegisteredEvent;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.config.BeanDefinition;

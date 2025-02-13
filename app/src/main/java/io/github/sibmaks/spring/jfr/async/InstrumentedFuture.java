@@ -2,8 +2,8 @@ package io.github.sibmaks.spring.jfr.async;
 
 
 import io.github.sibmaks.spring.jfr.core.InvocationContext;
-import io.github.sibmaks.spring.jfr.event.publish.async.AsyncMethodExecutedEvent;
-import io.github.sibmaks.spring.jfr.event.publish.async.AsyncMethodFailedEvent;
+import io.github.sibmaks.spring.jfr.event.recording.async.AsyncMethodExecutedEvent;
+import io.github.sibmaks.spring.jfr.event.recording.async.AsyncMethodFailedEvent;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;

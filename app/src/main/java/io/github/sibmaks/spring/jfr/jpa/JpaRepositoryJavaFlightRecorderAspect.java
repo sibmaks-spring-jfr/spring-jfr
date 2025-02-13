@@ -2,9 +2,9 @@ package io.github.sibmaks.spring.jfr.jpa;
 
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.core.InvocationContext;
-import io.github.sibmaks.spring.jfr.event.publish.jpa.JPAMethodCalledEvent;
-import io.github.sibmaks.spring.jfr.event.publish.jpa.JPAMethodExecutedEvent;
-import io.github.sibmaks.spring.jfr.event.publish.jpa.JPAMethodFailedEvent;
+import io.github.sibmaks.spring.jfr.event.recording.jpa.JPAMethodCalledEvent;
+import io.github.sibmaks.spring.jfr.event.recording.jpa.JPAMethodExecutedEvent;
+import io.github.sibmaks.spring.jfr.event.recording.jpa.JPAMethodFailedEvent;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;

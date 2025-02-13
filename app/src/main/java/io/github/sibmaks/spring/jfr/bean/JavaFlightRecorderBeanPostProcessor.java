@@ -1,9 +1,9 @@
 package io.github.sibmaks.spring.jfr.bean;
 
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
-import io.github.sibmaks.spring.jfr.event.publish.bean.PostProcessAfterInitializationEvent;
-import io.github.sibmaks.spring.jfr.event.publish.bean.PostProcessBeforeDestructionEvent;
-import io.github.sibmaks.spring.jfr.event.publish.bean.PostProcessBeforeInitializationEvent;
+import io.github.sibmaks.spring.jfr.event.recording.bean.PostProcessAfterInitializationEvent;
+import io.github.sibmaks.spring.jfr.event.recording.bean.PostProcessBeforeDestructionEvent;
+import io.github.sibmaks.spring.jfr.event.recording.bean.PostProcessBeforeInitializationEvent;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.DestructionAwareBeanPostProcessor;
 

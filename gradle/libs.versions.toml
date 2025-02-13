@@ -1,15 +1,21 @@
 [versions]
-spring-jfr-api = "0.0.14"
+lombok = "1.18.34"
+
+spring-jfr-api = "0.0.18"
 spring = "5.3.37"
 spring-data = "2.7.18"
 junit-jupiter = "5.10.3"
 javax-servlet = "4.0.1"
+zaxxer-hikariCP = "4.0.3"
 
 [libraries]
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 
-spring-jfr-api = { module = "io.github.sibmaks.spring-jfr:api", version.ref = "spring-jfr-api" }
+spring-jfr-api-common = { module = "io.github.sibmaks.spring-jfr.api:common", version.ref = "spring-jfr-api" }
+spring-jfr-api-recording = { module = "io.github.sibmaks.spring-jfr.api:recording", version.ref = "spring-jfr-api" }
 spring-aspects = { module = "org.springframework:spring-aspects", version.ref = "spring" }
 spring-context = { module = "org.springframework:spring-context", version.ref = "spring" }
+zaxxer-hikariCP = { module = "com.zaxxer:HikariCP", version.ref = "zaxxer-hikariCP" }
 spring-web = { module = "org.springframework:spring-web", version.ref = "spring" }
 spring-jpa = { module = "org.springframework.data:spring-data-jpa", version.ref = "spring-data" }
 javax-servlet = { module = "javax.servlet:javax.servlet-api", version.ref = "javax-servlet" }
