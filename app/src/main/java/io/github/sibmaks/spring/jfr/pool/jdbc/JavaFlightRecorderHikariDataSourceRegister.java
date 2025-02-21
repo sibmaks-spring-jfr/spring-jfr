@@ -48,6 +48,11 @@ public class JavaFlightRecorderHikariDataSourceRegister implements DestructionAw
     }
 
     @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        return bean;
+    }
+
+    @Override
     public void postProcessBeforeDestruction(Object bean, String beanName) throws BeansException {
         javaFlightRecorderObjectRegistry.remove(bean);
     }
