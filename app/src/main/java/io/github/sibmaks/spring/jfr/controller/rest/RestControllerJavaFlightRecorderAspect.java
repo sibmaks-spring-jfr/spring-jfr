@@ -28,12 +28,12 @@ public class RestControllerJavaFlightRecorderAspect {
         this.contextIdProvider = contextIdProvider;
     }
 
-    @Pointcut("@within(restController) && execution(* *(..))")
-    public void restControllerMethods(RestController restController) {
+    @Pointcut("@within(org.springframework.web.bind.annotation.RestController) && execution(* *(..)) && !execution(void init(..)) && !execution(void destroy(..))")
+    public void restControllerMethods() {
     }
 
-    @Around(value = "restControllerMethods(restController)", argNames = "joinPoint,restController")
-    public Object traceRestController(ProceedingJoinPoint joinPoint, RestController restController) throws Throwable {
+    @Around(value = "restControllerMethods()", argNames = "joinPoint")
+    public Object traceRestController(ProceedingJoinPoint joinPoint) throws Throwable {
         var requestAttributes = RequestContextHolder.getRequestAttributes();
         String url = null;
         String method = null;

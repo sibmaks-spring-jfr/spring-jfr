@@ -28,12 +28,12 @@ public class ControllerJavaFlightRecorderAspect {
         this.contextIdProvider = contextIdProvider;
     }
 
-    @Pointcut("@within(controller) && execution(* *(..))")
-    public void controllerMethods(Controller controller) {
+    @Pointcut("@within(org.springframework.stereotype.Controller) && execution(* *(..)) && !execution(void init(..)) && !execution(void destroy(..))")
+    public void controllerMethods() {
     }
 
-    @Around(value = "controllerMethods(controller)", argNames = "joinPoint,controller")
-    public Object traceController(ProceedingJoinPoint joinPoint, Controller controller) throws Throwable {
+    @Around(value = "controllerMethods()", argNames = "joinPoint")
+    public Object traceController(ProceedingJoinPoint joinPoint) throws Throwable {
         var requestAttributes = RequestContextHolder.getRequestAttributes();
         String url = null;
         String method = null;

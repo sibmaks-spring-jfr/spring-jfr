@@ -14,10 +14,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 @Aspect
 public class SchedulerJavaFlightRecorderAspect {
-    private final ContextIdProvider contextIdProvider;
+    private final String contextId;
 
     public SchedulerJavaFlightRecorderAspect(ContextIdProvider contextIdProvider) {
-        this.contextIdProvider = contextIdProvider;
+        this.contextId = contextIdProvider.getContextId();
     }
 
     @Pointcut("@annotation(scheduled)")
@@ -26,7 +26,6 @@ public class SchedulerJavaFlightRecorderAspect {
 
     @Around(value = "scheduledMethods(scheduled)", argNames = "joinPoint,scheduled")
     public Object traceScheduledMethods(ProceedingJoinPoint joinPoint, Scheduled scheduled) throws Throwable {
-        var contextId = contextIdProvider.getContextId();
         var invocationId = InvocationContext.startTrace();
         var signature = joinPoint.getSignature();
         var methodSignature = (MethodSignature) signature;

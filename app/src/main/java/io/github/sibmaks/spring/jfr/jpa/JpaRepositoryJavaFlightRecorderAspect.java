@@ -13,10 +13,10 @@ import org.aspectj.lang.reflect.MethodSignature;
 
 @Aspect
 public class JpaRepositoryJavaFlightRecorderAspect {
-    private final ContextIdProvider contextIdProvider;
+    private final String contextId;
 
     public JpaRepositoryJavaFlightRecorderAspect(ContextIdProvider contextIdProvider) {
-        this.contextIdProvider = contextIdProvider;
+        this.contextId = contextIdProvider.getContextId();
     }
 
     @Pointcut("execution(* org.springframework.data.jpa.repository.JpaRepository+.*(..))")
@@ -25,7 +25,6 @@ public class JpaRepositoryJavaFlightRecorderAspect {
 
     @Around("jpaRepositoryMethods()")
     public Object traceJpaRepository(ProceedingJoinPoint joinPoint) throws Throwable {
-        var contextId = contextIdProvider.getContextId();
         var correlationId = InvocationContext.getTraceId();
         var invocationId = InvocationContext.startTrace();
         var signature = joinPoint.getSignature();

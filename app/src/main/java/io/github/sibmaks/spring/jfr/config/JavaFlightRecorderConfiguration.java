@@ -6,7 +6,7 @@ import io.github.sibmaks.spring.jfr.bean.JavaFlightRecorderBeanDefinitionEventPr
 import io.github.sibmaks.spring.jfr.bean.JavaFlightRecorderBeanPostProcessor;
 import io.github.sibmaks.spring.jfr.bean.JavaFlightRecorderMergedBeanDefinitionEventProducer;
 import io.github.sibmaks.spring.jfr.bean.JavaFlightRecorderResolveDependencyEventProducer;
-import io.github.sibmaks.spring.jfr.component.ComponentRepositoryJavaFlightRecorderAspect;
+import io.github.sibmaks.spring.jfr.component.ComponentJavaFlightRecorderAspect;
 import io.github.sibmaks.spring.jfr.controller.ControllerJavaFlightRecorderAspect;
 import io.github.sibmaks.spring.jfr.controller.rest.RestControllerJavaFlightRecorderAspect;
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
@@ -17,7 +17,7 @@ import io.github.sibmaks.spring.jfr.jpa.JpaRepositoryJavaFlightRecorderAspect;
 import io.github.sibmaks.spring.jfr.pool.jdbc.JavaFlightRecorderHikariDataSourceAspect;
 import io.github.sibmaks.spring.jfr.pool.jdbc.JavaFlightRecorderHikariDataSourceRegister;
 import io.github.sibmaks.spring.jfr.scheduler.SchedulerJavaFlightRecorderAspect;
-import io.github.sibmaks.spring.jfr.service.ServiceRepositoryJavaFlightRecorderAspect;
+import io.github.sibmaks.spring.jfr.service.ServiceJavaFlightRecorderAspect;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -200,10 +200,10 @@ public class JavaFlightRecorderConfiguration {
                     )
             }
     )
-    public static ComponentRepositoryJavaFlightRecorderAspect componentJavaFlightRecorderAspect(
+    public static ComponentJavaFlightRecorderAspect componentJavaFlightRecorderAspect(
             ContextIdProvider contextIdProvider
     ) {
-        return new ComponentRepositoryJavaFlightRecorderAspect(contextIdProvider);
+        return new ComponentJavaFlightRecorderAspect(contextIdProvider);
     }
 
     @Bean
@@ -216,10 +216,10 @@ public class JavaFlightRecorderConfiguration {
                     )
             }
     )
-    public static ServiceRepositoryJavaFlightRecorderAspect serviceJavaFlightRecorderAspect(
+    public static ServiceJavaFlightRecorderAspect serviceJavaFlightRecorderAspect(
             ContextIdProvider contextIdProvider
     ) {
-        return new ServiceRepositoryJavaFlightRecorderAspect(contextIdProvider);
+        return new ServiceJavaFlightRecorderAspect(contextIdProvider);
     }
 
     @Bean

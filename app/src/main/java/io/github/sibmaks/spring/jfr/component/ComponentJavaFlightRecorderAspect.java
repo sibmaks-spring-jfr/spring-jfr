@@ -1,44 +1,44 @@
-package io.github.sibmaks.spring.jfr.service;
+package io.github.sibmaks.spring.jfr.component;
 
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.core.InvocationContext;
-import io.github.sibmaks.spring.jfr.event.recording.service.ServiceMethodCalledEvent;
-import io.github.sibmaks.spring.jfr.event.recording.service.ServiceMethodExecutedEvent;
-import io.github.sibmaks.spring.jfr.event.recording.service.ServiceMethodFailedEvent;
+import io.github.sibmaks.spring.jfr.event.recording.component.ComponentMethodCalledEvent;
+import io.github.sibmaks.spring.jfr.event.recording.component.ComponentMethodExecutedEvent;
+import io.github.sibmaks.spring.jfr.event.recording.component.ComponentMethodFailedEvent;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 /**
- * Spring Java Flight recorder {@link Service} invocation aspect.
+ * Spring Java Flight recorder {@link Component} invocation aspect.
  *
  * @author sibmaks
  * @since 0.0.10
  */
 @Aspect
-public class ServiceRepositoryJavaFlightRecorderAspect {
-    private final ContextIdProvider contextIdProvider;
+public class ComponentJavaFlightRecorderAspect {
+    private final String contextId;
 
-    public ServiceRepositoryJavaFlightRecorderAspect(ContextIdProvider contextIdProvider) {
-        this.contextIdProvider = contextIdProvider;
+    public ComponentJavaFlightRecorderAspect(ContextIdProvider contextIdProvider) {
+        this.contextId = contextIdProvider.getContextId();
     }
 
-    @Pointcut("@within(service) && execution(* *(..))")
-    public void serviceMethods(Service service) {
+    @Pointcut("@within(org.springframework.stereotype.Component) && execution(* *(..)) && " +
+            "!execution(void init(..)) && !execution(void destroy(..))")
+    public void componentMethods() {
     }
 
-    @Around(value = "serviceMethods(service)", argNames = "joinPoint,service")
-    public Object traceService(ProceedingJoinPoint joinPoint, Service service) throws Throwable {
-        var contextId = contextIdProvider.getContextId();
+    @Around(value = "componentMethods()", argNames = "joinPoint")
+    public Object traceComponent(ProceedingJoinPoint joinPoint) throws Throwable {
         var correlationId = InvocationContext.getTraceId();
         var invocationId = InvocationContext.startTrace();
         var signature = joinPoint.getSignature();
         var methodSignature = (MethodSignature) signature;
 
-        ServiceMethodCalledEvent.builder()
+        ComponentMethodCalledEvent.builder()
                 .correlationId(correlationId)
                 .contextId(contextId)
                 .invocationId(invocationId)
@@ -51,14 +51,14 @@ public class ServiceRepositoryJavaFlightRecorderAspect {
             var args = joinPoint.getArgs();
             var result = joinPoint.proceed(args);
 
-            ServiceMethodExecutedEvent.builder()
+            ComponentMethodExecutedEvent.builder()
                     .invocationId(invocationId)
                     .build()
                     .commit();
 
             return result;
         } catch (Throwable throwable) {
-            ServiceMethodFailedEvent.builder()
+            ComponentMethodFailedEvent.builder()
                     .invocationId(invocationId)
                     .exceptionClass(throwable.getClass().getCanonicalName())
                     .exceptionMessage(throwable.getMessage())
