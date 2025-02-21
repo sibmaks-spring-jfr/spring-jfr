@@ -1,18 +1,24 @@
 package io.github.sibmaks.spring.jfr.pool.jdbc;
 
 import com.zaxxer.hikari.HikariDataSource;
+import io.github.sibmaks.spring.jfr.JavaFlightRecorderObjectRegistry;
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.event.recording.pool.jdbc.DataSourcePoolRegisteredEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.DestructionAwareBeanPostProcessor;
 
 @Slf4j
-public class JavaFlightRecorderHikariDataSourceRegister implements BeanPostProcessor {
+public class JavaFlightRecorderHikariDataSourceRegister implements DestructionAwareBeanPostProcessor {
     private final String contextId;
+    private final JavaFlightRecorderObjectRegistry javaFlightRecorderObjectRegistry;
 
-    public JavaFlightRecorderHikariDataSourceRegister(ContextIdProvider contextIdProvider) {
+    public JavaFlightRecorderHikariDataSourceRegister(
+            ContextIdProvider contextIdProvider,
+            JavaFlightRecorderObjectRegistry javaFlightRecorderObjectRegistry
+    ) {
         this.contextId = contextIdProvider.getContextId();
+        this.javaFlightRecorderObjectRegistry = javaFlightRecorderObjectRegistry;
     }
 
     @Override
@@ -25,7 +31,7 @@ public class JavaFlightRecorderHikariDataSourceRegister implements BeanPostProce
 
         DataSourcePoolRegisteredEvent.builder()
                 .contextId(contextId)
-                .poolId(JDBCPoolRegistry.getPoolId(bean))
+                .poolId(javaFlightRecorderObjectRegistry.registerObject(bean, beanName))
                 .poolName(hikariDataSource.getPoolName())
                 .connectionTimeout(hikariDataSource.getConnectionTimeout())
                 .idleTimeout(hikariDataSource.getIdleTimeout())
@@ -39,5 +45,10 @@ public class JavaFlightRecorderHikariDataSourceRegister implements BeanPostProce
                 .commit();
 
         return bean;
+    }
+
+    @Override
+    public void postProcessBeforeDestruction(Object bean, String beanName) throws BeansException {
+        javaFlightRecorderObjectRegistry.remove(bean);
     }
 }

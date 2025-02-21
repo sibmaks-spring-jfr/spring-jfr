@@ -1,5 +1,6 @@
 package io.github.sibmaks.spring.jfr.pool.jdbc;
 
+import io.github.sibmaks.spring.jfr.JavaFlightRecorderObjectRegistry;
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.event.recording.pool.jdbc.connection.ConnectionRequestedEvent;
 import io.github.sibmaks.spring.jfr.event.recording.pool.jdbc.connection.ConnectionTransactionLevelSetEvent;
@@ -16,9 +17,14 @@ import java.util.UUID;
 @Aspect
 public class JavaFlightRecorderHikariDataSourceAspect {
     private final String contextId;
+    private final JavaFlightRecorderObjectRegistry javaFlightRecorderObjectRegistry;
 
-    public JavaFlightRecorderHikariDataSourceAspect(ContextIdProvider contextIdProvider) {
+    public JavaFlightRecorderHikariDataSourceAspect(
+            ContextIdProvider contextIdProvider,
+            JavaFlightRecorderObjectRegistry javaFlightRecorderObjectRegistry
+    ) {
         this.contextId = contextIdProvider.getContextId();
+        this.javaFlightRecorderObjectRegistry = javaFlightRecorderObjectRegistry;
     }
 
     @Around("execution(* com.zaxxer.hikari.HikariDataSource.getConnection(..)) && target(dataSource)")
@@ -34,7 +40,7 @@ public class JavaFlightRecorderHikariDataSourceAspect {
 
         ConnectionRequestedEvent.builder()
                 .contextId(contextId)
-                .poolId(JDBCPoolRegistry.getPoolId(dataSource))
+                .poolId(javaFlightRecorderObjectRegistry.registerObject(dataSource))
                 .connectionId(connectionId)
                 .build()
                 .commit();
