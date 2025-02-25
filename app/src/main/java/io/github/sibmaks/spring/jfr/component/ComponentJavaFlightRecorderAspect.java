@@ -27,7 +27,8 @@ public class ComponentJavaFlightRecorderAspect {
     }
 
     @Pointcut("@within(org.springframework.stereotype.Component) && execution(* *(..)) && " +
-            "!execution(void init(..)) && !execution(void destroy(..))")
+            "!within(org.springframework.web.filter.GenericFilterBean+) && " +
+            "!within(org.springframework.web.filter.OncePerRequestFilter+)")
     public void componentMethods() {
     }
 
