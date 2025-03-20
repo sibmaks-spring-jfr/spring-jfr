@@ -45,4 +45,9 @@ public class JavaFlightRecorderBeanPostProcessor implements DestructionAwareBean
                 .build()
                 .commit();
     }
+
+    @Override
+    public boolean requiresDestruction(Object o) {
+        return true;
+    }
 }
