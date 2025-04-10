@@ -68,7 +68,6 @@ public class JavaFlightRecorderConfiguration {
                     )
             }
     )
-
     public static JavaFlightRecorderBeanDefinitionEventProducer javaFlightRecorderBeanDefinitionEventProducer(
             ContextIdProvider contextIdProvider
     ) {
