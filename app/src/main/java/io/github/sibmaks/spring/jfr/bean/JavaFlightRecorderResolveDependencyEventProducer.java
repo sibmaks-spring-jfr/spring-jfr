@@ -26,9 +26,11 @@ public final class JavaFlightRecorderResolveDependencyEventProducer implements B
         this.contextIdProvider = contextIdProvider;
     }
 
-    @Pointcut(value = "execution(* org.springframework.beans.factory.config.AutowireCapableBeanFactory.resolveDependency(" +
-            "org.springframework.beans.factory.config.DependencyDescriptor, String, ..)) && args(descriptor, beanName, ..)",
-            argNames = "descriptor,beanName")
+    @Pointcut(
+            value = "execution(* org.springframework.beans.factory.config.AutowireCapableBeanFactory.resolveDependency(..)) && " +
+                    "args(descriptor, beanName, ..)",
+            argNames = "descriptor,beanName"
+    )
     public void resolveDependencyPointcut(DependencyDescriptor descriptor, String beanName) {
     }
 
