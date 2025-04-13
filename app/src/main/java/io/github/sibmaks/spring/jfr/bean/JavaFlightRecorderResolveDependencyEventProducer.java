@@ -2,7 +2,6 @@ package io.github.sibmaks.spring.jfr.bean;
 
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.event.recording.bean.ResolveBeanDependencyEvent;
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
@@ -34,8 +33,8 @@ public final class JavaFlightRecorderResolveDependencyEventProducer implements B
     public void resolveDependencyPointcut(DependencyDescriptor descriptor, String beanName) {
     }
 
-    @Before(value = "resolveDependencyPointcut(descriptor, beanName)", argNames = "joinPoint,descriptor,beanName")
-    public void logBeforeResolveDependency(JoinPoint joinPoint, DependencyDescriptor descriptor, String beanName) {
+    @Before(value = "resolveDependencyPointcut(descriptor, beanName)", argNames = "descriptor,beanName")
+    public void logBeforeResolveDependency(DependencyDescriptor descriptor, String beanName) {
         if (descriptor == null || beanName == null) {
             return;
         }

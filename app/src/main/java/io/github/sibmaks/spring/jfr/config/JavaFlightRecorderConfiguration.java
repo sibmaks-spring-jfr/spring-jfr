@@ -1,9 +1,10 @@
 package io.github.sibmaks.spring.jfr.config;
 
+import io.github.sibmaks.spring.jfr.JavaFlightRecorderListenerAdapter;
 import io.github.sibmaks.spring.jfr.JavaFlightRecorderObjectRegistry;
 import io.github.sibmaks.spring.jfr.async.AsyncJavaFlightRecorderAspect;
-import io.github.sibmaks.spring.jfr.bean.JavaFlightRecorderBeanDefinitionEventProducer;
 import io.github.sibmaks.spring.jfr.bean.JavaFlightRecorderBeanPostProcessor;
+import io.github.sibmaks.spring.jfr.bean.JavaFlightRecorderListenerBeanDefinitionPublisher;
 import io.github.sibmaks.spring.jfr.bean.JavaFlightRecorderMergedBeanDefinitionEventProducer;
 import io.github.sibmaks.spring.jfr.bean.JavaFlightRecorderResolveDependencyEventProducer;
 import io.github.sibmaks.spring.jfr.component.ComponentJavaFlightRecorderAspect;
@@ -68,10 +69,17 @@ public class JavaFlightRecorderConfiguration {
                     )
             }
     )
-    public static JavaFlightRecorderBeanDefinitionEventProducer javaFlightRecorderBeanDefinitionEventProducer(
+    public static JavaFlightRecorderListenerAdapter javaFlightRecorderListener(
+            ApplicationContext context,
+            ConfigurableListableBeanFactory beanFactory,
             ContextIdProvider contextIdProvider
     ) {
-        return new JavaFlightRecorderBeanDefinitionEventProducer(contextIdProvider);
+        var publisher = new JavaFlightRecorderListenerBeanDefinitionPublisher(
+                context,
+                beanFactory,
+                contextIdProvider
+        );
+        return new JavaFlightRecorderListenerAdapter(publisher);
     }
 
     @Bean
