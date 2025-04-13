@@ -1,9 +1,10 @@
 [versions]
 lombok = "1.18.34"
 
-spring-jfr-api = "0.0.21"
+spring-jfr-api = "0.0.25"
 spring = "5.3.37"
 spring-data = "2.7.18"
+spring-kafka = "2.8.11"
 junit-jupiter = "5.10.3"
 javax-servlet = "4.0.1"
 zaxxer-hikariCP = "4.0.3"
@@ -18,5 +19,6 @@ spring-context = { module = "org.springframework:spring-context", version.ref = 
 zaxxer-hikariCP = { module = "com.zaxxer:HikariCP", version.ref = "zaxxer-hikariCP" }
 spring-web = { module = "org.springframework:spring-web", version.ref = "spring" }
 spring-jpa = { module = "org.springframework.data:spring-data-jpa", version.ref = "spring-data" }
+spring-kafka = { module = "org.springframework.kafka:spring-kafka", version.ref = "spring-kafka" }
 javax-servlet = { module = "javax.servlet:javax.servlet-api", version.ref = "javax-servlet" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }

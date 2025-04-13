@@ -35,6 +35,7 @@ dependencies {
     compileOnly(libs.spring.aspects)
     compileOnly(libs.spring.context)
 
+    compileOnly(libs.spring.kafka)
     compileOnly(libs.spring.jpa)
     compileOnly(libs.zaxxer.hikariCP)
     compileOnly(libs.spring.web)
