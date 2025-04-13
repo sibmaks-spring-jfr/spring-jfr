@@ -33,11 +33,15 @@ public class KafkaConsumerJavaFlightRecorderAspect {
 
     @Around("execution(* org.apache.kafka.clients.consumer.Consumer.subscribe(..))")
     public Object onSubscribe(ProceedingJoinPoint pjp) throws Throwable {
+        var args = pjp.getArgs();
+        if (args.length < 2) {
+            return pjp.proceed(args);
+        }
         var consumer = (Consumer<?, ?>) pjp.getTarget();
         var was = Optional.ofNullable(consumer.subscription())
                 .map(HashSet::new)
                 .orElseGet(HashSet::new);
-        var result = pjp.proceed(pjp.getArgs());
+        var result = pjp.proceed(args);
         var is = Optional.ofNullable(consumer.subscription())
                 .map(HashSet::new)
                 .orElseGet(HashSet::new);
