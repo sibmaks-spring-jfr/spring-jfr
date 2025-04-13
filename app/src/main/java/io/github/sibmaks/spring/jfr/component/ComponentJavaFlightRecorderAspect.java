@@ -26,9 +26,13 @@ public class ComponentJavaFlightRecorderAspect {
         this.contextId = contextIdProvider.getContextId();
     }
 
-    @Pointcut("@within(org.springframework.stereotype.Component) && execution(* *(..)) && " +
-            "!within(org.springframework.web.filter.GenericFilterBean+) && " +
-            "!within(org.springframework.web.filter.OncePerRequestFilter+)")
+    @Pointcut(
+            "@within(org.springframework.stereotype.Component) && execution(* *(..)) && " +
+                    "!within(org.springframework.web.filter.GenericFilterBean+) && " +
+                    "!within(org.springframework.web.filter.OncePerRequestFilter+) &&" +
+                    "!within(org.springframework.beans.factory.config.BeanPostProcessor+) &&" +
+                    "!within(org.springframework.beans.factory.config.BeanFactoryPostProcessor+)"
+    )
     public void componentMethods() {
     }
 
