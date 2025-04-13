@@ -1,7 +1,7 @@
 package io.github.sibmaks.spring.jfr.bean;
 
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
-import io.github.sibmaks.spring.jfr.event.core.converter.DependencyConverter;
+import io.github.sibmaks.spring.jfr.event.core.converter.ArrayConverter;
 import io.github.sibmaks.spring.jfr.event.recording.bean.MergedBeanDefinitionRegisteredEvent;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactoryUtils;
@@ -68,7 +68,7 @@ public final class JavaFlightRecorderMergedBeanDefinitionEventProducer implement
                 .beanClassName(beanType.getCanonicalName())
                 .beanName(beanName)
                 .primary(String.valueOf(beanDefinition.isPrimary()))
-                .dependencies(DependencyConverter.convert(dependencies.toArray(String[]::new)))
+                .dependencies(ArrayConverter.convert(dependencies.toArray(String[]::new)))
                 .stereotype(stereotype.name())
                 .generated(false)
                 .build()
@@ -88,7 +88,7 @@ public final class JavaFlightRecorderMergedBeanDefinitionEventProducer implement
                 .contextId(contextId)
                 .beanClassName(beanClassName)
                 .beanName(beanName)
-                .dependencies(DependencyConverter.convert(dependencies.toArray(String[]::new)))
+                .dependencies(ArrayConverter.convert(dependencies.toArray(String[]::new)))
                 .generated(true)
                 .build()
                 .commit();
