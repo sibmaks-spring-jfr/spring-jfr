@@ -1,7 +1,7 @@
 [versions]
 lombok = "1.18.34"
 
-spring-jfr-api = "0.0.26"
+spring-jfr-api = "0.0.27"
 spring = "5.3.37"
 spring-data = "2.7.18"
 spring-kafka = "2.8.11"
