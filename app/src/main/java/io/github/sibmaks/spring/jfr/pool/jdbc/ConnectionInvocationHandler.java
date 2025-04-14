@@ -1,23 +1,25 @@
 package io.github.sibmaks.spring.jfr.pool.jdbc;
 
+import io.github.sibmaks.spring.jfr.Internal;
 import io.github.sibmaks.spring.jfr.event.api.pool.jdbc.connection.action.ConnectionAction;
 import io.github.sibmaks.spring.jfr.event.recording.pool.jdbc.connection.ConnectionTransactionLevelSetEvent;
 import io.github.sibmaks.spring.jfr.event.recording.pool.jdbc.connection.action.ConnectionActionFailedEvent;
 import io.github.sibmaks.spring.jfr.event.recording.pool.jdbc.connection.action.ConnectionActionRequestedEvent;
 import io.github.sibmaks.spring.jfr.event.recording.pool.jdbc.connection.action.ConnectionActionSucceedEvent;
 import lombok.AllArgsConstructor;
+import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author sibmaks
  * @since 0.0.22
  */
+@Internal
 @AllArgsConstructor
 class ConnectionInvocationHandler implements InvocationHandler {
     private final String connectionId;
@@ -47,9 +49,24 @@ class ConnectionInvocationHandler implements InvocationHandler {
             case "rollback":
                 connectionActionRequested(connectionId, actionIndex, ConnectionAction.ROLLBACK);
                 return actionTrack(method, args, actionIndex);
-            default:
-                return fastTrack(method, args);
+            case "createStatement":
+            case "prepareStatement":
+            case "prepareCall": {
+                var statement = method.invoke(realConnection, args);
+                var proxyFactory = new AspectJProxyFactory(statement);
+                proxyFactory.addAspect(new ConnectionStatementJavaFlightRecorderAspect(connectionId, actionCounter));
+                return proxyFactory.getProxy();
+            }
+            case "setTransactionIsolation": {
+                ConnectionTransactionLevelSetEvent.builder()
+                        .connectionId(connectionId)
+                        .transactionLevel(realConnection.getTransactionIsolation())
+                        .build()
+                        .commit();
+                break;
+            }
         }
+        return method.invoke(realConnection, args);
     }
 
     private Object actionTrack(Method method, Object[] args, long actionIndex)
@@ -76,18 +93,4 @@ class ConnectionInvocationHandler implements InvocationHandler {
         }
     }
 
-    private Object fastTrack(Method method, Object[] args)
-            throws IllegalAccessException, InvocationTargetException, SQLException {
-        var rs = method.invoke(realConnection, args);
-
-        if ("setTransactionIsolation".equals(method.getName())) {
-            ConnectionTransactionLevelSetEvent.builder()
-                    .connectionId(connectionId)
-                    .transactionLevel(realConnection.getTransactionIsolation())
-                    .build()
-                    .commit();
-        }
-
-        return rs;
-    }
 }

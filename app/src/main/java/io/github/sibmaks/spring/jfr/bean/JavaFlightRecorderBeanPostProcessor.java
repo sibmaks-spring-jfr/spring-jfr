@@ -1,5 +1,6 @@
 package io.github.sibmaks.spring.jfr.bean;
 
+import io.github.sibmaks.spring.jfr.Internal;
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.event.recording.bean.PostProcessAfterInitializationEvent;
 import io.github.sibmaks.spring.jfr.event.recording.bean.PostProcessBeforeDestructionEvent;
@@ -7,6 +8,7 @@ import io.github.sibmaks.spring.jfr.event.recording.bean.PostProcessBeforeInitia
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.DestructionAwareBeanPostProcessor;
 
+@Internal
 public class JavaFlightRecorderBeanPostProcessor implements DestructionAwareBeanPostProcessor {
     private final ContextIdProvider contextIdProvider;
 

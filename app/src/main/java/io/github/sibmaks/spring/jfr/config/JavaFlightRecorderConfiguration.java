@@ -1,5 +1,6 @@
 package io.github.sibmaks.spring.jfr.config;
 
+import io.github.sibmaks.spring.jfr.Internal;
 import io.github.sibmaks.spring.jfr.JavaFlightRecorderObjectRegistry;
 import io.github.sibmaks.spring.jfr.async.AsyncJavaFlightRecorderAspect;
 import io.github.sibmaks.spring.jfr.bean.JavaFlightRecorderBeanDefinitionEventProducer;
@@ -14,6 +15,7 @@ import io.github.sibmaks.spring.jfr.core.ContextIdProviderImpl;
 import io.github.sibmaks.spring.jfr.core.JavaFlightRecorderConditional;
 import io.github.sibmaks.spring.jfr.core.JavaFlightRecorderProperty;
 import io.github.sibmaks.spring.jfr.jpa.JpaRepositoryJavaFlightRecorderAspect;
+import io.github.sibmaks.spring.jfr.kafka.consumer.KafkaConsumerFactoryJavaFlightRecorderBeanPostProcessor;
 import io.github.sibmaks.spring.jfr.pool.jdbc.JavaFlightRecorderHikariDataSourceAspect;
 import io.github.sibmaks.spring.jfr.pool.jdbc.JavaFlightRecorderHikariDataSourceRegister;
 import io.github.sibmaks.spring.jfr.scheduler.SchedulerJavaFlightRecorderAspect;
@@ -29,6 +31,7 @@ import org.springframework.context.annotation.Configuration;
  * @author sibmaks
  * @since 0.0.4
  */
+@Internal
 @Configuration
 public class JavaFlightRecorderConfiguration {
 
@@ -255,6 +258,26 @@ public class JavaFlightRecorderConfiguration {
             JavaFlightRecorderObjectRegistry objectRegistry
     ) {
         return new JavaFlightRecorderHikariDataSourceRegister(contextIdProvider, objectRegistry);
+    }
+
+    @Bean
+    @JavaFlightRecorderConditional(
+            requiredClasses = {
+                    "org.springframework.kafka.core.ConsumerFactory",
+                    "org.apache.kafka.clients.consumer.Consumer"
+            },
+            properties = {
+                    @JavaFlightRecorderProperty(
+                            key = "spring.jfr.instrumentation.kafka.enabled",
+                            value = "true"
+                    )
+            }
+    )
+    public static KafkaConsumerFactoryJavaFlightRecorderBeanPostProcessor kafkaConsumerFactoryJavaFlightRecorderBeanPostProcessor(
+            ContextIdProvider contextIdProvider,
+            JavaFlightRecorderObjectRegistry objectRegistry
+    ) {
+        return new KafkaConsumerFactoryJavaFlightRecorderBeanPostProcessor(contextIdProvider, objectRegistry);
     }
 
 }

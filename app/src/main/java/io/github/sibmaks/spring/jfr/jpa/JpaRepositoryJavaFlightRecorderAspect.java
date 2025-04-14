@@ -1,5 +1,6 @@
 package io.github.sibmaks.spring.jfr.jpa;
 
+import io.github.sibmaks.spring.jfr.Internal;
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.core.InvocationContext;
 import io.github.sibmaks.spring.jfr.event.recording.jpa.JPAMethodCalledEvent;
@@ -12,6 +13,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 
 @Aspect
+@Internal
 public class JpaRepositoryJavaFlightRecorderAspect {
     private final String contextId;
 
