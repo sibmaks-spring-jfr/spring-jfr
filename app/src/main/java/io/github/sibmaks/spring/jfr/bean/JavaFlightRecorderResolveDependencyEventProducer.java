@@ -1,5 +1,6 @@
 package io.github.sibmaks.spring.jfr.bean;
 
+import io.github.sibmaks.spring.jfr.Internal;
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.event.recording.bean.ResolveBeanDependencyEvent;
 import org.aspectj.lang.JoinPoint;
@@ -18,6 +19,7 @@ import org.springframework.core.annotation.Order;
  * @since 0.0.18
  */
 @Aspect
+@Internal
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public final class JavaFlightRecorderResolveDependencyEventProducer implements BeanFactoryPostProcessor {
     private final ContextIdProvider contextIdProvider;

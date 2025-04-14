@@ -1,6 +1,7 @@
 package io.github.sibmaks.spring.jfr.pool.jdbc;
 
 import com.zaxxer.hikari.HikariDataSource;
+import io.github.sibmaks.spring.jfr.Internal;
 import io.github.sibmaks.spring.jfr.JavaFlightRecorderObjectRegistry;
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.event.recording.pool.jdbc.DataSourcePoolRegisteredEvent;
@@ -9,6 +10,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.DestructionAwareBeanPostProcessor;
 
 @Slf4j
+@Internal
 public class JavaFlightRecorderHikariDataSourceRegister implements DestructionAwareBeanPostProcessor {
     private final String contextId;
     private final JavaFlightRecorderObjectRegistry javaFlightRecorderObjectRegistry;

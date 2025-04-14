@@ -1,5 +1,6 @@
 package io.github.sibmaks.spring.jfr.kafka.consumer;
 
+import io.github.sibmaks.spring.jfr.Internal;
 import io.github.sibmaks.spring.jfr.event.core.converter.ArrayConverter;
 import io.github.sibmaks.spring.jfr.event.recording.kafka.consumer.KafkaConsumerClosedEvent;
 import io.github.sibmaks.spring.jfr.event.recording.kafka.consumer.commit.KafkaConsumerCommitEvent;
@@ -22,6 +23,7 @@ import java.util.UUID;
 
 @Slf4j
 @Aspect
+@Internal
 public class KafkaConsumerJavaFlightRecorderAspect {
     private final String consumerId;
 

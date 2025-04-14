@@ -1,5 +1,6 @@
 package io.github.sibmaks.spring.jfr.kafka.consumer;
 
+import io.github.sibmaks.spring.jfr.Internal;
 import io.github.sibmaks.spring.jfr.event.core.converter.ArrayConverter;
 import io.github.sibmaks.spring.jfr.event.recording.kafka.consumer.KafkaConsumerCreatedEvent;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.UUID;
  * @author sibmaks
  * @since 0.0.27
  */
+@Internal
 @AllArgsConstructor
 public class KafkaConsumerFactoryListener<K, V> implements ConsumerPostProcessor<K, V> {
     private final String contextId;

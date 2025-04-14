@@ -1,5 +1,6 @@
 package io.github.sibmaks.spring.jfr.config;
 
+import io.github.sibmaks.spring.jfr.Internal;
 import io.github.sibmaks.spring.jfr.JavaFlightRecorderObjectRegistry;
 import io.github.sibmaks.spring.jfr.async.AsyncJavaFlightRecorderAspect;
 import io.github.sibmaks.spring.jfr.bean.JavaFlightRecorderBeanDefinitionEventProducer;
@@ -30,6 +31,7 @@ import org.springframework.context.annotation.Configuration;
  * @author sibmaks
  * @since 0.0.4
  */
+@Internal
 @Configuration
 public class JavaFlightRecorderConfiguration {
 

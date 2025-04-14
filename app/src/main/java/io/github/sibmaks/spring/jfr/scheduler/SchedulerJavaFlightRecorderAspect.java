@@ -1,5 +1,6 @@
 package io.github.sibmaks.spring.jfr.scheduler;
 
+import io.github.sibmaks.spring.jfr.Internal;
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.core.InvocationContext;
 import io.github.sibmaks.spring.jfr.event.recording.scheduled.ScheduledMethodCalledEvent;
@@ -13,6 +14,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.scheduling.annotation.Scheduled;
 
 @Aspect
+@Internal
 public class SchedulerJavaFlightRecorderAspect {
     private final String contextId;
 

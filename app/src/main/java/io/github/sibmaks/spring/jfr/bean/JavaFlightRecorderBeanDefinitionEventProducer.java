@@ -1,5 +1,6 @@
 package io.github.sibmaks.spring.jfr.bean;
 
+import io.github.sibmaks.spring.jfr.Internal;
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.event.core.converter.ArrayConverter;
 import io.github.sibmaks.spring.jfr.event.recording.bean.BeanDefinitionRegisteredEvent;
@@ -16,6 +17,7 @@ import java.util.Optional;
  * @author sibmaks
  * @since 0.0.2
  */
+@Internal
 public final class JavaFlightRecorderBeanDefinitionEventProducer implements BeanFactoryPostProcessor {
     private final ContextIdProvider contextIdProvider;
 

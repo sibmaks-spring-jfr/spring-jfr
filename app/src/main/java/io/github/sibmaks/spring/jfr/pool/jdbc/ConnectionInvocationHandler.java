@@ -1,5 +1,6 @@
 package io.github.sibmaks.spring.jfr.pool.jdbc;
 
+import io.github.sibmaks.spring.jfr.Internal;
 import io.github.sibmaks.spring.jfr.event.api.pool.jdbc.connection.action.ConnectionAction;
 import io.github.sibmaks.spring.jfr.event.recording.pool.jdbc.connection.ConnectionTransactionLevelSetEvent;
 import io.github.sibmaks.spring.jfr.event.recording.pool.jdbc.connection.action.ConnectionActionFailedEvent;
@@ -18,6 +19,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author sibmaks
  * @since 0.0.22
  */
+@Internal
 @AllArgsConstructor
 class ConnectionInvocationHandler implements InvocationHandler {
     private final String connectionId;
