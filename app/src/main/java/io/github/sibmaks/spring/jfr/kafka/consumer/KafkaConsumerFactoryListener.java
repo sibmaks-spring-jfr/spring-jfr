@@ -1,6 +1,7 @@
 package io.github.sibmaks.spring.jfr.kafka.consumer;
 
 import io.github.sibmaks.spring.jfr.Internal;
+import io.github.sibmaks.spring.jfr.JavaFlightRecorderObjectRegistry;
 import io.github.sibmaks.spring.jfr.event.core.converter.ArrayConverter;
 import io.github.sibmaks.spring.jfr.event.recording.kafka.consumer.KafkaConsumerCreatedEvent;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,7 @@ import java.util.UUID;
 public class KafkaConsumerFactoryListener<K, V> implements ConsumerPostProcessor<K, V> {
     private final String contextId;
     private final String consumerFactoryName;
+    private final JavaFlightRecorderObjectRegistry javaFlightRecorderObjectRegistry;
     private final ConsumerFactory<K, V> consumerFactory;
 
     @Override
@@ -36,6 +38,7 @@ public class KafkaConsumerFactoryListener<K, V> implements ConsumerPostProcessor
                 .toArray(String[]::new);
 
         var aopConsumer = consumer;
+
         var consumerId = UUID.randomUUID().toString();
         if (!AopUtils.isAopProxy(aopConsumer)) {
             var proxyFactory = new AspectJProxyFactory(consumer);
@@ -54,6 +57,11 @@ public class KafkaConsumerFactoryListener<K, V> implements ConsumerPostProcessor
                 .topics(ArrayConverter.convert(subscription))
                 .build()
                 .commit();
+
+        javaFlightRecorderObjectRegistry.registerObject(
+                aopConsumer,
+                consumerId
+        );
 
         return aopConsumer;
     }
