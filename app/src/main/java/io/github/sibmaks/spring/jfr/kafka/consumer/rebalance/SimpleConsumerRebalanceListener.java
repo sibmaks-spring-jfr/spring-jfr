@@ -36,7 +36,8 @@ public class SimpleConsumerRebalanceListener implements ConsumerAwareRebalanceLi
                 .partitions(
                         getPartitions(partitions)
                 )
-                .build();
+                .build()
+                .commit();
     }
 
     @Override
@@ -46,7 +47,8 @@ public class SimpleConsumerRebalanceListener implements ConsumerAwareRebalanceLi
         KafkaConsumerPartitionRevokedEvent.builder()
                 .consumerId(consumerId)
                 .partitions(getPartitions(partitions))
-                .build();
+                .build()
+                .commit();
     }
 
     @Override
@@ -56,7 +58,8 @@ public class SimpleConsumerRebalanceListener implements ConsumerAwareRebalanceLi
         KafkaConsumerPartitionLostEvent.builder()
                 .consumerId(consumerId)
                 .partitions(getPartitions(partitions))
-                .build();
+                .build()
+                .commit();
     }
 
     @Override
@@ -66,7 +69,8 @@ public class SimpleConsumerRebalanceListener implements ConsumerAwareRebalanceLi
         KafkaConsumerPartitionAssignedEvent.builder()
                 .consumerId(consumerId)
                 .partitions(getPartitions(partitions))
-                .build();
+                .build()
+                .commit();
     }
 
 }

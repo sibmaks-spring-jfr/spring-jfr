@@ -38,7 +38,8 @@ public class AspectConsumerRebalanceListener {
         KafkaConsumerPartitionRevokedEvent.builder()
                 .consumerId(consumerId)
                 .partitions(getPartitions(partitions))
-                .build();
+                .build()
+                .commit();
     }
 
     @After(
@@ -52,7 +53,8 @@ public class AspectConsumerRebalanceListener {
         KafkaConsumerPartitionRevokedEvent.builder()
                 .consumerId(consumerId)
                 .partitions(getPartitions(partitions))
-                .build();
+                .build()
+                .commit();
     }
 
     @After(
@@ -66,7 +68,8 @@ public class AspectConsumerRebalanceListener {
         KafkaConsumerPartitionLostEvent.builder()
                 .consumerId(consumerId)
                 .partitions(getPartitions(partitions))
-                .build();
+                .build()
+                .commit();
     }
 
     @After(
@@ -80,7 +83,8 @@ public class AspectConsumerRebalanceListener {
         KafkaConsumerPartitionAssignedEvent.builder()
                 .consumerId(consumerId)
                 .partitions(getPartitions(partitions))
-                .build();
+                .build()
+                .commit();
     }
 
 
