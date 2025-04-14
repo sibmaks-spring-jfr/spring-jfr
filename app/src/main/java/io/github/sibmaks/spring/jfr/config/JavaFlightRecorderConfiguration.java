@@ -274,10 +274,9 @@ public class JavaFlightRecorderConfiguration {
             }
     )
     public static KafkaConsumerFactoryJavaFlightRecorderBeanPostProcessor kafkaConsumerFactoryJavaFlightRecorderBeanPostProcessor(
-            ContextIdProvider contextIdProvider,
             JavaFlightRecorderObjectRegistry objectRegistry
     ) {
-        return new KafkaConsumerFactoryJavaFlightRecorderBeanPostProcessor(contextIdProvider, objectRegistry);
+        return new KafkaConsumerFactoryJavaFlightRecorderBeanPostProcessor(objectRegistry);
     }
 
 }
