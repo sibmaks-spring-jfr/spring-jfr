@@ -1,5 +1,6 @@
 package io.github.sibmaks.spring.jfr.pool.jdbc;
 
+import io.github.sibmaks.spring.jfr.Internal;
 import io.github.sibmaks.spring.jfr.JavaFlightRecorderObjectRegistry;
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.event.recording.pool.jdbc.connection.ConnectionRequestedEvent;
@@ -15,6 +16,7 @@ import java.util.UUID;
 
 @Slf4j
 @Aspect
+@Internal
 public class JavaFlightRecorderHikariDataSourceAspect {
     private final String contextId;
     private final JavaFlightRecorderObjectRegistry javaFlightRecorderObjectRegistry;

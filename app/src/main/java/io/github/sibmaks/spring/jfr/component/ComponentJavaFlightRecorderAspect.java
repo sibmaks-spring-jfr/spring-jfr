@@ -1,5 +1,6 @@
 package io.github.sibmaks.spring.jfr.component;
 
+import io.github.sibmaks.spring.jfr.Internal;
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.core.InvocationContext;
 import io.github.sibmaks.spring.jfr.event.recording.component.ComponentMethodCalledEvent;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
  * @since 0.0.10
  */
 @Aspect
+@Internal
 public class ComponentJavaFlightRecorderAspect {
     private final String contextId;
 
@@ -31,7 +33,8 @@ public class ComponentJavaFlightRecorderAspect {
                     "!within(org.springframework.web.filter.GenericFilterBean+) && " +
                     "!within(org.springframework.web.filter.OncePerRequestFilter+) &&" +
                     "!within(org.springframework.beans.factory.config.BeanPostProcessor+) &&" +
-                    "!within(org.springframework.beans.factory.config.BeanFactoryPostProcessor+)"
+                    "!within(org.springframework.beans.factory.config.BeanFactoryPostProcessor+) && " +
+                    "!@within(io.github.sibmaks.spring.jfr.Internal)"
     )
     public void componentMethods() {
     }

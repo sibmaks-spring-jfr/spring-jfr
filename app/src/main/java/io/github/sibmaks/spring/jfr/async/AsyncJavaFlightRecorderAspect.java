@@ -1,5 +1,6 @@
 package io.github.sibmaks.spring.jfr.async;
 
+import io.github.sibmaks.spring.jfr.Internal;
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.core.InvocationContext;
 import io.github.sibmaks.spring.jfr.event.recording.async.AsyncMethodCalledEvent;
@@ -15,6 +16,7 @@ import java.util.UUID;
 import java.util.concurrent.Future;
 
 @Aspect
+@Internal
 public class AsyncJavaFlightRecorderAspect {
     private final ContextIdProvider contextIdProvider;
 

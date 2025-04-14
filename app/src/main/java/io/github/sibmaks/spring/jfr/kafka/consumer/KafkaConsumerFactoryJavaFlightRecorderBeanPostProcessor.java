@@ -1,5 +1,6 @@
 package io.github.sibmaks.spring.jfr.kafka.consumer;
 
+import io.github.sibmaks.spring.jfr.Internal;
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -9,6 +10,7 @@ import org.springframework.kafka.core.ConsumerFactory;
  * @author sibmaks
  * @since 0.0.27
  */
+@Internal
 public class KafkaConsumerFactoryJavaFlightRecorderBeanPostProcessor implements BeanPostProcessor {
     private final String contextId;
 

@@ -1,5 +1,6 @@
 package io.github.sibmaks.spring.jfr.service;
 
+import io.github.sibmaks.spring.jfr.Internal;
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.core.InvocationContext;
 import io.github.sibmaks.spring.jfr.event.recording.service.ServiceMethodCalledEvent;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
  * @since 0.0.10
  */
 @Aspect
+@Internal
 public class ServiceJavaFlightRecorderAspect {
     private final String contextId;
 
@@ -26,8 +28,12 @@ public class ServiceJavaFlightRecorderAspect {
         this.contextId = contextIdProvider.getContextId();
     }
 
-    @Pointcut("@within(org.springframework.stereotype.Service) && execution(* *(..)) && " +
-            "!execution(void init(..)) && !execution(void destroy(..))")
+    @Pointcut("@within(org.springframework.stereotype.Service) && " +
+            "execution(* *(..)) && " +
+            "!execution(void init(..)) && " +
+            "!execution(void destroy(..)) && " +
+            "!@within(io.github.sibmaks.spring.jfr.Internal)"
+    )
     public void serviceMethods() {
     }
 

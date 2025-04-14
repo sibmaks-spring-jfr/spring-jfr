@@ -1,5 +1,6 @@
 package io.github.sibmaks.spring.jfr.controller;
 
+import io.github.sibmaks.spring.jfr.Internal;
 import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.core.InvocationContext;
 import io.github.sibmaks.spring.jfr.event.recording.controller.ControllerMethodCalledEvent;
@@ -21,6 +22,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  * @since 0.0.4
  */
 @Aspect
+@Internal
 public class ControllerJavaFlightRecorderAspect {
     private final ContextIdProvider contextIdProvider;
 
@@ -28,7 +30,10 @@ public class ControllerJavaFlightRecorderAspect {
         this.contextIdProvider = contextIdProvider;
     }
 
-    @Pointcut("@within(org.springframework.stereotype.Controller) && execution(* *(..)) && !execution(void init(..)) && !execution(void destroy(..))")
+    @Pointcut("@within(org.springframework.stereotype.Controller) && " +
+            "execution(* *(..)) && " +
+            "!execution(void init(..)) && " +
+            "!execution(void destroy(..))")
     public void controllerMethods() {
     }
 
