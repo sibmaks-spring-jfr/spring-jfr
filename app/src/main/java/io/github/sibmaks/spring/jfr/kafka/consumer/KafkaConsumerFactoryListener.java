@@ -47,7 +47,7 @@ public class KafkaConsumerFactoryListener<K, V> implements ConsumerPostProcessor
 
         KafkaConsumerCreatedEvent.builder()
                 .contextId(contextId)
-                .consumerGroup(consumerFactoryName)
+                .consumerFactory(consumerFactoryName)
                 .consumerId(consumerId)
                 .bootstrapServers(String.valueOf(bootstrapServers))
                 .consumerGroup(consumerGroupMetadata.groupId())
