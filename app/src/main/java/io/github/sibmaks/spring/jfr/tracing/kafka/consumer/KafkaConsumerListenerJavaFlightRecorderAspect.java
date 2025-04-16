@@ -33,31 +33,32 @@ public class KafkaConsumerListenerJavaFlightRecorderAspect {
     @Around(value = "kafkaListenerMethods()", argNames = "joinPoint")
     public Object traceKafkaListenerMethods(ProceedingJoinPoint joinPoint) throws Throwable {
         var messageId = InvocationContext.startTrace();
-
-        KafkaConsumerMessageReceivedEvent.builder()
-                .messageId(messageId)
-                .build()
-                .commit();
-
         try {
-            var result = joinPoint.proceed();
-
-            KafkaConsumerMessageProcessedEvent.builder()
+            KafkaConsumerMessageReceivedEvent.builder()
                     .messageId(messageId)
                     .build()
                     .commit();
 
-            return result;
-        } catch (Throwable throwable) {
-            var throwableClass = throwable.getClass();
-            KafkaConsumerMessageFailedEvent.builder()
-                    .messageId(messageId)
-                    .exceptionClass(throwableClass.getCanonicalName())
-                    .exceptionMessage(throwable.getMessage())
-                    .build()
-                    .commit();
+            try {
+                var result = joinPoint.proceed();
 
-            throw throwable;
+                KafkaConsumerMessageProcessedEvent.builder()
+                        .messageId(messageId)
+                        .build()
+                        .commit();
+
+                return result;
+            } catch (Throwable throwable) {
+                var throwableClass = throwable.getClass();
+                KafkaConsumerMessageFailedEvent.builder()
+                        .messageId(messageId)
+                        .exceptionClass(throwableClass.getCanonicalName())
+                        .exceptionMessage(throwable.getMessage())
+                        .build()
+                        .commit();
+
+                throw throwable;
+            }
         } finally {
             InvocationContext.stopTrace(messageId);
         }

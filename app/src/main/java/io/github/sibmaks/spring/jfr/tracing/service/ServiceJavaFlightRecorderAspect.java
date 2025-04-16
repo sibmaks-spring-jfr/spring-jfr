@@ -1,5 +1,6 @@
 package io.github.sibmaks.spring.jfr.tracing.service;
 
+import io.github.sibmaks.spring.jfr.JavaFlightRecorderRecordCounter;
 import io.github.sibmaks.spring.jfr.core.InvocationContext;
 import io.github.sibmaks.spring.jfr.event.recording.tracing.service.ServiceMethodCalledEvent;
 import io.github.sibmaks.spring.jfr.event.recording.tracing.service.ServiceMethodExecutedEvent;
@@ -19,57 +20,64 @@ import org.springframework.stereotype.Service;
  */
 @Aspect
 public class ServiceJavaFlightRecorderAspect {
+    private final String className;
     private final String contextId;
+    private final JavaFlightRecorderRecordCounter flightRecorderRecordCounter;
 
-    public ServiceJavaFlightRecorderAspect(String contextId) {
+    public ServiceJavaFlightRecorderAspect(
+            String className,
+            String contextId,
+            JavaFlightRecorderRecordCounter flightRecorderRecordCounter
+    ) {
+        this.className = className;
         this.contextId = contextId;
+        this.flightRecorderRecordCounter = flightRecorderRecordCounter;
     }
 
-    @Pointcut("@within(org.springframework.stereotype.Service) && " +
-            "execution(* *(..)) && " +
-            "!execution(void init(..)) && " +
-            "!execution(void destroy(..)) && " +
-            "!@within(io.github.sibmaks.spring.jfr.event.api.tracing.IgnoreTracing)"
-    )
+    @Pointcut("@within(org.springframework.stereotype.Service)")
     public void serviceMethods() {
     }
 
     @Around(value = "serviceMethods()", argNames = "joinPoint")
     public Object traceService(ProceedingJoinPoint joinPoint) throws Throwable {
+        if (!flightRecorderRecordCounter.hasRunningRecording()) {
+            return joinPoint.proceed();
+        }
         var correlationId = InvocationContext.getTraceId();
         var invocationId = InvocationContext.startTrace();
-        var signature = joinPoint.getSignature();
-        var methodSignature = (MethodSignature) signature;
-
-        var declaringType = methodSignature.getDeclaringType();
-        ServiceMethodCalledEvent.builder()
-                .correlationId(correlationId)
-                .contextId(contextId)
-                .invocationId(invocationId)
-                .className(declaringType.getCanonicalName())
-                .methodName(methodSignature.getName())
-                .build()
-                .commit();
-
         try {
-            var result = joinPoint.proceed();
+            var signature = joinPoint.getSignature();
+            var methodSignature = (MethodSignature) signature;
 
-            ServiceMethodExecutedEvent.builder()
+            ServiceMethodCalledEvent.builder()
+                    .correlationId(correlationId)
+                    .contextId(contextId)
                     .invocationId(invocationId)
+                    .className(className)
+                    .methodName(methodSignature.getName())
                     .build()
                     .commit();
 
-            return result;
-        } catch (Throwable throwable) {
-            var throwableClass = throwable.getClass();
-            ServiceMethodFailedEvent.builder()
-                    .invocationId(invocationId)
-                    .exceptionClass(throwableClass.getCanonicalName())
-                    .exceptionMessage(throwable.getMessage())
-                    .build()
-                    .commit();
+            try {
+                var result = joinPoint.proceed();
 
-            throw throwable;
+                ServiceMethodExecutedEvent.builder()
+                        .invocationId(invocationId)
+                        .build()
+                        .commit();
+
+                return result;
+            } catch (Throwable throwable) {
+                var throwableClass = throwable.getClass();
+                ServiceMethodFailedEvent.builder()
+                        .invocationId(invocationId)
+                        .exceptionClass(throwableClass.getCanonicalName())
+                        .exceptionMessage(throwable.getMessage())
+                        .build()
+                        .commit();
+
+                throw throwable;
+            }
         } finally {
             InvocationContext.stopTrace(invocationId);
         }

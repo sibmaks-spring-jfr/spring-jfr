@@ -25,37 +25,39 @@ public class SchedulerJavaFlightRecorderAspect {
     @Around(value = "scheduledMethods()", argNames = "joinPoint")
     public Object traceScheduledMethods(ProceedingJoinPoint joinPoint) throws Throwable {
         var invocationId = InvocationContext.startTrace();
-        var signature = joinPoint.getSignature();
-        var methodSignature = (MethodSignature) signature;
-
-        var declaringType = methodSignature.getDeclaringType();
-        ScheduledMethodCalledEvent.builder()
-                .contextId(contextId)
-                .invocationId(invocationId)
-                .className(declaringType.getCanonicalName())
-                .methodName(methodSignature.getName())
-                .build()
-                .commit();
-
         try {
-            var result = joinPoint.proceed();
+            var signature = joinPoint.getSignature();
+            var methodSignature = (MethodSignature) signature;
 
-            ScheduledMethodExecutedEvent.builder()
+            var declaringType = methodSignature.getDeclaringType();
+            ScheduledMethodCalledEvent.builder()
+                    .contextId(contextId)
                     .invocationId(invocationId)
+                    .className(declaringType.getCanonicalName())
+                    .methodName(methodSignature.getName())
                     .build()
                     .commit();
 
-            return result;
-        } catch (Throwable throwable) {
-            var throwableClass = throwable.getClass();
-            ScheduledMethodFailedEvent.builder()
-                    .invocationId(invocationId)
-                    .exceptionClass(throwableClass.getCanonicalName())
-                    .exceptionMessage(throwable.getMessage())
-                    .build()
-                    .commit();
+            try {
+                var result = joinPoint.proceed();
 
-            throw throwable;
+                ScheduledMethodExecutedEvent.builder()
+                        .invocationId(invocationId)
+                        .build()
+                        .commit();
+
+                return result;
+            } catch (Throwable throwable) {
+                var throwableClass = throwable.getClass();
+                ScheduledMethodFailedEvent.builder()
+                        .invocationId(invocationId)
+                        .exceptionClass(throwableClass.getCanonicalName())
+                        .exceptionMessage(throwable.getMessage())
+                        .build()
+                        .commit();
+
+                throw throwable;
+            }
         } finally {
             InvocationContext.stopTrace(invocationId);
         }

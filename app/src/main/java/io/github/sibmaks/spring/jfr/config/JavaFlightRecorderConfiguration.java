@@ -1,28 +1,34 @@
 package io.github.sibmaks.spring.jfr.config;
 
 import io.github.sibmaks.spring.jfr.JavaFlightRecorderObjectRegistry;
-import io.github.sibmaks.spring.jfr.tracing.async.AsyncJavaFlightRecorderAspect;
+import io.github.sibmaks.spring.jfr.JavaFlightRecorderRecordCounter;
 import io.github.sibmaks.spring.jfr.bean.JavaFlightRecorderBeanDefinitionEventProducer;
 import io.github.sibmaks.spring.jfr.bean.JavaFlightRecorderBeanPostProcessor;
 import io.github.sibmaks.spring.jfr.bean.JavaFlightRecorderMergedBeanDefinitionEventProducer;
 import io.github.sibmaks.spring.jfr.bean.JavaFlightRecorderResolveDependencyEventProducer;
-import io.github.sibmaks.spring.jfr.tracing.component.ComponentJavaFlightRecorderAspect;
-import io.github.sibmaks.spring.jfr.tracing.controller.ControllerJavaFlightRecorderAspect;
-import io.github.sibmaks.spring.jfr.tracing.controller.rest.RestControllerJavaFlightRecorderAspect;
-import io.github.sibmaks.spring.jfr.core.impl.ContextIdProviderImpl;
 import io.github.sibmaks.spring.jfr.core.JavaFlightRecorderConditional;
 import io.github.sibmaks.spring.jfr.core.JavaFlightRecorderProperty;
-import io.github.sibmaks.spring.jfr.tracing.jpa.JpaRepositoryJavaFlightRecorderAspect;
+import io.github.sibmaks.spring.jfr.core.impl.ContextIdProviderImpl;
+import io.github.sibmaks.spring.jfr.tracing.async.AsyncJavaFlightRecorderAspect;
+import io.github.sibmaks.spring.jfr.tracing.component.ComponentJavaFlightRecorderBeanPostProcessor;
+import io.github.sibmaks.spring.jfr.tracing.controller.ControllerJavaFlightRecorderBeanPostProcessor;
+import io.github.sibmaks.spring.jfr.tracing.controller.rest.RestControllerJavaFlightRecorderBeanPostProcessor;
+import io.github.sibmaks.spring.jfr.tracing.jpa.JpaRepositoryJavaFlightRecorderBeanPostProcessor;
 import io.github.sibmaks.spring.jfr.tracing.kafka.consumer.KafkaConsumerFactoryJavaFlightRecorderBeanPostProcessor;
 import io.github.sibmaks.spring.jfr.tracing.pool.jdbc.JavaFlightRecorderHikariDataSourceAspect;
 import io.github.sibmaks.spring.jfr.tracing.pool.jdbc.JavaFlightRecorderHikariDataSourceRegister;
 import io.github.sibmaks.spring.jfr.tracing.scheduler.SchedulerJavaFlightRecorderAspect;
-import io.github.sibmaks.spring.jfr.tracing.service.ServiceJavaFlightRecorderAspect;
+import io.github.sibmaks.spring.jfr.tracing.service.ServiceJavaFlightRecorderBeanPostProcessor;
+import jdk.jfr.FlightRecorder;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Spring Java Flight recorder configuration.
@@ -39,6 +45,13 @@ public class JavaFlightRecorderConfiguration {
     ) {
         var contextIdProvider = new ContextIdProviderImpl(applicationContext);
         return contextIdProvider.getContextId();
+    }
+
+    @Bean("flightRecorderRecordCounter")
+    public static JavaFlightRecorderRecordCounter flightRecorderRecordCounter() {
+        var counter = new JavaFlightRecorderRecordCounter();
+        FlightRecorder.addListener(counter);
+        return counter;
     }
 
     @Bean("javaFlightRecorderObjectRegistry")
@@ -119,10 +132,16 @@ public class JavaFlightRecorderConfiguration {
                     )
             }
     )
-    public static JpaRepositoryJavaFlightRecorderAspect jpaRepositoryJavaFlightRecorderAspect(
-            @Qualifier("javaFlightRecorderContextId") String contextId
+    public static JpaRepositoryJavaFlightRecorderBeanPostProcessor jpaRepositoryJavaFlightRecorderBeanPostProcessor(
+            @Qualifier("javaFlightRecorderContextId") String contextId,
+            @Value("${spring.jfr.instrumentation.jpa-repository.filters}") String rawFilters,
+            JavaFlightRecorderRecordCounter flightRecorderRecordCounter
     ) {
-        return new JpaRepositoryJavaFlightRecorderAspect(contextId);
+        var filters = Optional.ofNullable(rawFilters)
+                .map(it -> it.split(","))
+                .map(List::of)
+                .orElseGet(List::of);
+        return new JpaRepositoryJavaFlightRecorderBeanPostProcessor(contextId, filters, flightRecorderRecordCounter);
     }
 
     @Bean
@@ -135,10 +154,16 @@ public class JavaFlightRecorderConfiguration {
                     )
             }
     )
-    public static ControllerJavaFlightRecorderAspect controllerJavaFlightRecorderAspect(
-            @Qualifier("javaFlightRecorderContextId") String contextId
+    public static ControllerJavaFlightRecorderBeanPostProcessor controllerJavaFlightRecorderBeanPostProcessor(
+            @Qualifier("javaFlightRecorderContextId") String contextId,
+            @Value("${spring.jfr.instrumentation.controller.filters}") String rawFilters,
+            JavaFlightRecorderRecordCounter flightRecorderRecordCounter
     ) {
-        return new ControllerJavaFlightRecorderAspect(contextId);
+        var filters = Optional.ofNullable(rawFilters)
+                .map(it -> it.split(","))
+                .map(List::of)
+                .orElseGet(List::of);
+        return new ControllerJavaFlightRecorderBeanPostProcessor(contextId, filters, flightRecorderRecordCounter);
     }
 
     @Bean
@@ -151,10 +176,16 @@ public class JavaFlightRecorderConfiguration {
                     )
             }
     )
-    public static RestControllerJavaFlightRecorderAspect restControllerJavaFlightRecorderAspect(
-            @Qualifier("javaFlightRecorderContextId") String contextId
+    public static RestControllerJavaFlightRecorderBeanPostProcessor restControllerJavaFlightRecorderBeanPostProcessor(
+            @Qualifier("javaFlightRecorderContextId") String contextId,
+            @Value("${spring.jfr.instrumentation.rest-controller.filters}") String rawFilters,
+            JavaFlightRecorderRecordCounter flightRecorderRecordCounter
     ) {
-        return new RestControllerJavaFlightRecorderAspect(contextId);
+        var filters = Optional.ofNullable(rawFilters)
+                .map(it -> it.split(","))
+                .map(List::of)
+                .orElseGet(List::of);
+        return new RestControllerJavaFlightRecorderBeanPostProcessor(contextId, filters, flightRecorderRecordCounter);
     }
 
     @Bean
@@ -199,10 +230,16 @@ public class JavaFlightRecorderConfiguration {
                     )
             }
     )
-    public static ComponentJavaFlightRecorderAspect componentJavaFlightRecorderAspect(
-            @Qualifier("javaFlightRecorderContextId") String contextId
+    public static ComponentJavaFlightRecorderBeanPostProcessor componentJavaFlightRecorderBeanPostProcessor(
+            @Qualifier("javaFlightRecorderContextId") String contextId,
+            @Value("${spring.jfr.instrumentation.component.filters}") String rawFilters,
+            JavaFlightRecorderRecordCounter flightRecorderRecordCounter
     ) {
-        return new ComponentJavaFlightRecorderAspect(contextId);
+        var filters = Optional.ofNullable(rawFilters)
+                .map(it -> it.split(","))
+                .map(List::of)
+                .orElseGet(List::of);
+        return new ComponentJavaFlightRecorderBeanPostProcessor(contextId, filters, flightRecorderRecordCounter);
     }
 
     @Bean
@@ -215,10 +252,16 @@ public class JavaFlightRecorderConfiguration {
                     )
             }
     )
-    public static ServiceJavaFlightRecorderAspect serviceJavaFlightRecorderAspect(
-            @Qualifier("javaFlightRecorderContextId") String contextId
+    public static ServiceJavaFlightRecorderBeanPostProcessor serviceJavaFlightRecorderBeanPostProcessor(
+            @Qualifier("javaFlightRecorderContextId") String contextId,
+            @Value("${spring.jfr.instrumentation.service.filters}") String rawFilters,
+            JavaFlightRecorderRecordCounter flightRecorderRecordCounter
     ) {
-        return new ServiceJavaFlightRecorderAspect(contextId);
+        var filters = Optional.ofNullable(rawFilters)
+                .map(it -> it.split(","))
+                .map(List::of)
+                .orElseGet(List::of);
+        return new ServiceJavaFlightRecorderBeanPostProcessor(contextId, filters, flightRecorderRecordCounter);
     }
 
     @Bean

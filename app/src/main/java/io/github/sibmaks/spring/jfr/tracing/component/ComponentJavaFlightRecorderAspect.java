@@ -1,5 +1,6 @@
 package io.github.sibmaks.spring.jfr.tracing.component;
 
+import io.github.sibmaks.spring.jfr.JavaFlightRecorderRecordCounter;
 import io.github.sibmaks.spring.jfr.core.InvocationContext;
 import io.github.sibmaks.spring.jfr.event.recording.tracing.component.ComponentMethodCalledEvent;
 import io.github.sibmaks.spring.jfr.event.recording.tracing.component.ComponentMethodExecutedEvent;
@@ -19,59 +20,65 @@ import org.springframework.stereotype.Component;
  */
 @Aspect
 public class ComponentJavaFlightRecorderAspect {
+    private final String className;
     private final String contextId;
+    private final JavaFlightRecorderRecordCounter flightRecorderRecordCounter;
 
-    public ComponentJavaFlightRecorderAspect(String contextId) {
+    public ComponentJavaFlightRecorderAspect(
+            String className,
+            String contextId,
+            JavaFlightRecorderRecordCounter flightRecorderRecordCounter
+    ) {
+        this.className = className;
         this.contextId = contextId;
+        this.flightRecorderRecordCounter = flightRecorderRecordCounter;
     }
 
-    @Pointcut(
-            "@within(org.springframework.stereotype.Component) && execution(* *(..)) && " +
-                    "!within(org.springframework.web.filter.GenericFilterBean+) && " +
-                    "!within(org.springframework.web.filter.OncePerRequestFilter+) &&" +
-                    "!within(org.springframework.beans.factory.config.BeanPostProcessor+) &&" +
-                    "!within(org.springframework.beans.factory.config.BeanFactoryPostProcessor+) && " +
-                    "!@within(io.github.sibmaks.spring.jfr.event.api.tracing.IgnoreTracing)"
-    )
+    @Pointcut("execution(* *(..))")
     public void componentMethods() {
     }
 
     @Around(value = "componentMethods()", argNames = "joinPoint")
     public Object traceComponent(ProceedingJoinPoint joinPoint) throws Throwable {
+        if (!flightRecorderRecordCounter.hasRunningRecording()) {
+            return joinPoint.proceed();
+        }
+
         var correlationId = InvocationContext.getTraceId();
         var invocationId = InvocationContext.startTrace();
-        var signature = joinPoint.getSignature();
-        var methodSignature = (MethodSignature) signature;
-
-        var declaringType = methodSignature.getDeclaringType();
-        ComponentMethodCalledEvent.builder()
-                .correlationId(correlationId)
-                .contextId(contextId)
-                .invocationId(invocationId)
-                .className(declaringType.getCanonicalName())
-                .methodName(methodSignature.getName())
-                .build()
-                .commit();
-
         try {
-            var result = joinPoint.proceed();
+            var signature = joinPoint.getSignature();
+            var methodSignature = (MethodSignature) signature;
 
-            ComponentMethodExecutedEvent.builder()
+            ComponentMethodCalledEvent.builder()
+                    .correlationId(correlationId)
+                    .contextId(contextId)
                     .invocationId(invocationId)
+                    .className(className)
+                    .methodName(methodSignature.getName())
                     .build()
                     .commit();
 
-            return result;
-        } catch (Throwable throwable) {
-            var throwableClass = throwable.getClass();
-            ComponentMethodFailedEvent.builder()
-                    .invocationId(invocationId)
-                    .exceptionClass(throwableClass.getCanonicalName())
-                    .exceptionMessage(throwable.getMessage())
-                    .build()
-                    .commit();
+            try {
+                var result = joinPoint.proceed();
 
-            throw throwable;
+                ComponentMethodExecutedEvent.builder()
+                        .invocationId(invocationId)
+                        .build()
+                        .commit();
+
+                return result;
+            } catch (Throwable throwable) {
+                var throwableClass = throwable.getClass();
+                ComponentMethodFailedEvent.builder()
+                        .invocationId(invocationId)
+                        .exceptionClass(throwableClass.getCanonicalName())
+                        .exceptionMessage(throwable.getMessage())
+                        .build()
+                        .commit();
+
+                throw throwable;
+            }
         } finally {
             InvocationContext.stopTrace(invocationId);
         }
