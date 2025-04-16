@@ -18,6 +18,12 @@ public class JavaFlightRecorderObjectRegistry {
     private final Map<Object, String> objectToId = new ConcurrentHashMap<>();
     private final Map<String, Object> idToObject = new ConcurrentHashMap<>();
 
+    /**
+     * Register object in registry
+     *
+     * @param object object instance
+     * @return object identifier
+     */
     public String registerObject(Object object) {
         var readLock = lock.readLock();
         readLock.lock();
@@ -46,6 +52,13 @@ public class JavaFlightRecorderObjectRegistry {
         }
     }
 
+    /**
+     * Register object in registry with proposal identifier
+     *
+     * @param object   object instance
+     * @param proposal proposal identifier
+     * @return actual object identifier
+     */
     public String registerObject(Object object, String proposal) {
         var readLock = lock.readLock();
         readLock.lock();

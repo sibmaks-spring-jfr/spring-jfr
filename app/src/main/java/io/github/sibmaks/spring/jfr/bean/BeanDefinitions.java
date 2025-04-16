@@ -1,6 +1,8 @@
 package io.github.sibmaks.spring.jfr.bean;
 
 import io.github.sibmaks.spring.jfr.event.api.bean.Stereotype;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
@@ -14,11 +16,8 @@ import java.util.Set;
  * @author sibmaks
  * @since 0.0.12
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class BeanDefinitions {
-
-    private BeanDefinitions() {
-
-    }
 
     /**
      * Get stereotype from bean type
