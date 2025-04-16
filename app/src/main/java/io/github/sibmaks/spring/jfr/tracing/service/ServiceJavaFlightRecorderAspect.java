@@ -5,11 +5,10 @@ import io.github.sibmaks.spring.jfr.core.InvocationContext;
 import io.github.sibmaks.spring.jfr.event.recording.tracing.service.ServiceMethodCalledEvent;
 import io.github.sibmaks.spring.jfr.event.recording.tracing.service.ServiceMethodExecutedEvent;
 import io.github.sibmaks.spring.jfr.event.recording.tracing.service.ServiceMethodFailedEvent;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
+import org.aopalliance.aop.Advice;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Service;
 
 /**
@@ -19,7 +18,7 @@ import org.springframework.stereotype.Service;
  * @since 0.0.10
  */
 @Aspect
-public class ServiceJavaFlightRecorderAspect {
+public class ServiceJavaFlightRecorderAspect implements Advice, MethodInterceptor {
     private final String className;
     private final String contextId;
     private final JavaFlightRecorderRecordCounter flightRecorderRecordCounter;
@@ -34,32 +33,27 @@ public class ServiceJavaFlightRecorderAspect {
         this.flightRecorderRecordCounter = flightRecorderRecordCounter;
     }
 
-    @Pointcut("@within(org.springframework.stereotype.Service)")
-    public void serviceMethods() {
-    }
-
-    @Around(value = "serviceMethods()", argNames = "joinPoint")
-    public Object traceService(ProceedingJoinPoint joinPoint) throws Throwable {
+    @Override
+    public Object invoke(MethodInvocation invocation) throws Throwable {
         if (!flightRecorderRecordCounter.hasRunningRecording()) {
-            return joinPoint.proceed();
+            return invocation.proceed();
         }
         var correlationId = InvocationContext.getTraceId();
         var invocationId = InvocationContext.startTrace();
         try {
-            var signature = joinPoint.getSignature();
-            var methodSignature = (MethodSignature) signature;
+            var method = invocation.getMethod();
 
             ServiceMethodCalledEvent.builder()
                     .correlationId(correlationId)
                     .contextId(contextId)
                     .invocationId(invocationId)
                     .className(className)
-                    .methodName(methodSignature.getName())
+                    .methodName(method.getName())
                     .build()
                     .commit();
 
             try {
-                var result = joinPoint.proceed();
+                var result = invocation.proceed();
 
                 ServiceMethodExecutedEvent.builder()
                         .invocationId(invocationId)

@@ -3,6 +3,7 @@ package io.github.sibmaks.spring.jfr.tracing.jpa;
 import io.github.sibmaks.spring.jfr.JavaFlightRecorderRecordCounter;
 import io.github.sibmaks.spring.jfr.tracing.GenericAspectBeanPostProcessor;
 import io.github.sibmaks.spring.jfr.tracing.service.ServiceJavaFlightRecorderAspect;
+import org.aopalliance.aop.Advice;
 import org.aspectj.lang.annotation.Aspect;
 
 import java.util.List;
@@ -11,7 +12,6 @@ import java.util.List;
  * @author sibmaks
  * @since 0.0.27
  */
-@Aspect
 public class JpaRepositoryJavaFlightRecorderBeanPostProcessor extends GenericAspectBeanPostProcessor {
     protected final String contextId;
     protected final JavaFlightRecorderRecordCounter flightRecorderRecordCounter;
@@ -27,7 +27,7 @@ public class JpaRepositoryJavaFlightRecorderBeanPostProcessor extends GenericAsp
     }
 
     @Override
-    protected Object buildAspect(Object bean, Class<?> type) {
+    protected Advice buildAspect(Object bean, Class<?> type) {
         return new JpaRepositoryJavaFlightRecorderAspect(type.getName(), contextId, flightRecorderRecordCounter);
     }
 }

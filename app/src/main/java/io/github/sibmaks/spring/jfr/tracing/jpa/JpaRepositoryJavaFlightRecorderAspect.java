@@ -5,14 +5,13 @@ import io.github.sibmaks.spring.jfr.core.InvocationContext;
 import io.github.sibmaks.spring.jfr.event.recording.tracing.jpa.JPAMethodCalledEvent;
 import io.github.sibmaks.spring.jfr.event.recording.tracing.jpa.JPAMethodExecutedEvent;
 import io.github.sibmaks.spring.jfr.event.recording.tracing.jpa.JPAMethodFailedEvent;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
+import org.aopalliance.aop.Advice;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
-import org.aspectj.lang.reflect.MethodSignature;
 
 @Aspect
-public class JpaRepositoryJavaFlightRecorderAspect {
+public class JpaRepositoryJavaFlightRecorderAspect implements Advice, MethodInterceptor {
     private final String className;
     private final String contextId;
     private final JavaFlightRecorderRecordCounter flightRecorderRecordCounter;
@@ -27,32 +26,27 @@ public class JpaRepositoryJavaFlightRecorderAspect {
         this.flightRecorderRecordCounter = flightRecorderRecordCounter;
     }
 
-    @Pointcut("execution(* *(..))")
-    public void jpaRepositoryMethods() {
-    }
-
-    @Around("jpaRepositoryMethods()")
-    public Object traceJpaRepository(ProceedingJoinPoint joinPoint) throws Throwable {
+    @Override
+    public Object invoke(MethodInvocation methodInvocation) throws Throwable {
         if (!flightRecorderRecordCounter.hasRunningRecording()) {
-            return joinPoint.proceed();
+            return methodInvocation.proceed();
         }
         var correlationId = InvocationContext.getTraceId();
         var invocationId = InvocationContext.startTrace();
         try {
-            var signature = joinPoint.getSignature();
-            var methodSignature = (MethodSignature) signature;
+            var method = methodInvocation.getMethod();
 
             JPAMethodCalledEvent.builder()
                     .contextId(contextId)
                     .correlationId(correlationId)
                     .invocationId(invocationId)
                     .className(className)
-                    .methodName(methodSignature.getName())
+                    .methodName(method.getName())
                     .build()
                     .commit();
 
             try {
-                var result = joinPoint.proceed();
+                var result = methodInvocation.proceed();
 
                 JPAMethodExecutedEvent.builder()
                         .invocationId(invocationId)

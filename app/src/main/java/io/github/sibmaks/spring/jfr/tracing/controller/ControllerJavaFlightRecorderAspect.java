@@ -5,11 +5,10 @@ import io.github.sibmaks.spring.jfr.core.InvocationContext;
 import io.github.sibmaks.spring.jfr.event.recording.tracing.controller.ControllerMethodCalledEvent;
 import io.github.sibmaks.spring.jfr.event.recording.tracing.controller.ControllerMethodExecutedEvent;
 import io.github.sibmaks.spring.jfr.event.recording.tracing.controller.ControllerMethodFailedEvent;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
+import org.aopalliance.aop.Advice;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -21,7 +20,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  * @since 0.0.4
  */
 @Aspect
-public class ControllerJavaFlightRecorderAspect {
+public class ControllerJavaFlightRecorderAspect implements Advice, MethodInterceptor {
     private final String className;
     private final String contextId;
     private final JavaFlightRecorderRecordCounter flightRecorderRecordCounter;
@@ -36,14 +35,10 @@ public class ControllerJavaFlightRecorderAspect {
         this.flightRecorderRecordCounter = flightRecorderRecordCounter;
     }
 
-    @Pointcut("execution(* *(..))")
-    public void controllerMethods() {
-    }
-
-    @Around(value = "controllerMethods()", argNames = "joinPoint")
-    public Object traceController(ProceedingJoinPoint joinPoint) throws Throwable {
+    @Override
+    public Object invoke(MethodInvocation methodInvocation) throws Throwable {
         if (!flightRecorderRecordCounter.hasRunningRecording()) {
-            return joinPoint.proceed();
+            return methodInvocation.proceed();
         }
         var requestAttributes = RequestContextHolder.getRequestAttributes();
         String url = null;
@@ -56,8 +51,7 @@ public class ControllerJavaFlightRecorderAspect {
         }
         var invocationId = InvocationContext.startTrace();
         try {
-            var signature = joinPoint.getSignature();
-            var methodSignature = (MethodSignature) signature;
+            var methodSignature = methodInvocation.getMethod();
 
             ControllerMethodCalledEvent.builder()
                     .contextId(contextId)
@@ -71,7 +65,7 @@ public class ControllerJavaFlightRecorderAspect {
                     .commit();
 
             try {
-                var result = joinPoint.proceed();
+                var result = methodInvocation.proceed();
 
                 ControllerMethodExecutedEvent.builder()
                         .invocationId(invocationId)
