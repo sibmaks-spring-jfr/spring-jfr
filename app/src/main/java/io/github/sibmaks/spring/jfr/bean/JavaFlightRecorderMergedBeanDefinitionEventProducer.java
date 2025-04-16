@@ -1,7 +1,5 @@
 package io.github.sibmaks.spring.jfr.bean;
 
-import io.github.sibmaks.spring.jfr.Internal;
-import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.event.core.converter.ArrayConverter;
 import io.github.sibmaks.spring.jfr.event.recording.bean.MergedBeanDefinitionRegisteredEvent;
 import org.springframework.beans.BeansException;
@@ -19,16 +17,15 @@ import java.util.Optional;
  * @author sibmaks
  * @since 0.0.12
  */
-@Internal
 public final class JavaFlightRecorderMergedBeanDefinitionEventProducer implements MergedBeanDefinitionPostProcessor {
-    private final ContextIdProvider contextIdProvider;
+    private final String contextId;
     private final ConfigurableListableBeanFactory beanFactory;
 
     public JavaFlightRecorderMergedBeanDefinitionEventProducer(
-            ContextIdProvider contextIdProvider,
+            String contextId,
             ConfigurableListableBeanFactory beanFactory
     ) {
-        this.contextIdProvider = contextIdProvider;
+        this.contextId = contextId;
         this.beanFactory = beanFactory;
     }
 
@@ -57,12 +54,16 @@ public final class JavaFlightRecorderMergedBeanDefinitionEventProducer implement
         return bean;
     }
 
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        return bean;
+    }
+
     private void produce(BeanDefinition beanDefinition, String beanName, Class<?> beanType) {
         var stereotype = BeanDefinitions.getStereotype(beanType);
         var dependencies = BeanDefinitions.getDependencies(beanFactory, beanName, beanDefinition);
         var scope = BeanDefinitions.getScope(beanDefinition);
 
-        var contextId = contextIdProvider.getContextId();
         MergedBeanDefinitionRegisteredEvent.builder()
                 .contextId(contextId)
                 .scope(scope)
@@ -83,7 +84,6 @@ public final class JavaFlightRecorderMergedBeanDefinitionEventProducer implement
                 .map(HashSet::new)
                 .orElseGet(HashSet::new);
 
-        var contextId = contextIdProvider.getContextId();
         var beanClassName = beanType.getCanonicalName();
 
         MergedBeanDefinitionRegisteredEvent.builder()
@@ -96,8 +96,4 @@ public final class JavaFlightRecorderMergedBeanDefinitionEventProducer implement
                 .commit();
     }
 
-    @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        return bean;
-    }
 }

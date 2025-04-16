@@ -1,10 +1,17 @@
 package io.github.sibmaks.spring.jfr.bean;
 
 import io.github.sibmaks.spring.jfr.event.api.bean.Stereotype;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -14,11 +21,8 @@ import java.util.Set;
  * @author sibmaks
  * @since 0.0.12
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class BeanDefinitions {
-
-    private BeanDefinitions() {
-
-    }
 
     /**
      * Get stereotype from bean type
@@ -30,31 +34,25 @@ public final class BeanDefinitions {
         if (beanType == null) {
             return Stereotype.UNKNOWN;
         }
-        if (isAnnotationPresent(beanType, "org.springframework.web.bind.annotation.RestController")) {
+        if (AnnotatedElementUtils.hasAnnotation(beanType, RestController.class)) {
             return Stereotype.REST_CONTROLLER;
         }
-        if (isAnnotationPresent(beanType, "org.springframework.stereotype.Controller")) {
+        if (AnnotatedElementUtils.hasAnnotation(beanType, Controller.class)) {
             return Stereotype.CONTROLLER;
         }
-        if (isAnnotationPresent(beanType, "org.springframework.stereotype.Service")) {
+        if (AnnotatedElementUtils.hasAnnotation(beanType, Service.class)) {
             return Stereotype.SERVICE;
         }
-        if (isAnnotationPresent(beanType, "org.springframework.stereotype.Repository")) {
+        if (AnnotatedElementUtils.hasAnnotation(beanType, Repository.class)) {
             return Stereotype.REPOSITORY;
         }
-        if (isAnnotationPresent(beanType, "org.springframework.stereotype.Component")) {
+        if (org.springframework.data.repository.Repository.class.isAssignableFrom(beanType)) {
+            return Stereotype.REPOSITORY;
+        }
+        if (AnnotatedElementUtils.hasAnnotation(beanType, Component.class)) {
             return Stereotype.COMPONENT;
         }
         return Stereotype.UNKNOWN;
-    }
-
-    private static boolean isAnnotationPresent(Class<?> type, String annotationClassName) {
-        try {
-            var annotationType = Class.forName(annotationClassName);
-            return type.isAnnotationPresent((Class<? extends Annotation>) annotationType);
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
     }
 
     /**
