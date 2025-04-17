@@ -48,6 +48,6 @@ public class JpaRepositoryJavaFlightRecorderBeanPostProcessor extends GenericAsp
         if (hasAnnotation) {
             return true;
         }
-        return org.springframework.data.repository.Repository.class.isAssignableFrom(bean.getClass());
+        return org.springframework.data.repository.Repository.class.isAssignableFrom(type);
     }
 }
