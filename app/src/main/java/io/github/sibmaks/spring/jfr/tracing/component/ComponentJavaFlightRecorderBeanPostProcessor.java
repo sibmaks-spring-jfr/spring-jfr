@@ -29,7 +29,7 @@ public class ComponentJavaFlightRecorderBeanPostProcessor extends GenericAspectB
     }
 
     @Override
-    protected Advice buildAspect(Object bean, Class<?> type) {
+    protected Advice buildAdvice(Object bean, Class<?> type) {
         return new ComponentJavaFlightRecorderAspect(type.getName(), contextId, flightRecorderRecordCounter);
     }
 }

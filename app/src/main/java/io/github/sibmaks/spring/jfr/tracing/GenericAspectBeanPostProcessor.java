@@ -2,8 +2,8 @@ package io.github.sibmaks.spring.jfr.tracing;
 
 import org.aopalliance.aop.Advice;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
 import org.springframework.aop.framework.Advised;
+import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
@@ -36,16 +36,16 @@ public abstract class GenericAspectBeanPostProcessor implements BeanPostProcesso
     }
 
     private Object buildProxy(Object bean, Class<?> type) {
-        var aspect = buildAspect(bean, type);
+        var advice = buildAdvice(bean, type);
         if(bean instanceof Advised) {
             var advised = (Advised) bean;
-            advised.addAdvice(aspect);
+            advised.addAdvice(advice);
             return bean;
         }
 
-        var proxyFactory = new AspectJProxyFactory(bean);
+        var proxyFactory = new ProxyFactory(bean);
         proxyFactory.setProxyTargetClass(true);
-        proxyFactory.addAspect(aspect);
+        proxyFactory.addAdvice(advice);
         return proxyFactory.getProxy();
     }
 
@@ -66,5 +66,5 @@ public abstract class GenericAspectBeanPostProcessor implements BeanPostProcesso
         return className.startsWith(packagePath + ".");
     }
 
-    protected abstract Advice buildAspect(Object bean, Class<?> type);
+    protected abstract Advice buildAdvice(Object bean, Class<?> type);
 }

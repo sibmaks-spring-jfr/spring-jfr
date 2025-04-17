@@ -25,7 +25,7 @@ public class ServiceJavaFlightRecorderBeanPostProcessor extends GenericAspectBea
     }
 
     @Override
-    protected Advice buildAspect(Object bean, Class<?> type) {
+    protected Advice buildAdvice(Object bean, Class<?> type) {
         return new ServiceJavaFlightRecorderAspect(type.getName(), contextId, flightRecorderRecordCounter);
     }
 }

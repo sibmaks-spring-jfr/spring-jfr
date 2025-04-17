@@ -6,7 +6,8 @@ import io.github.sibmaks.spring.jfr.event.recording.tracing.pool.jdbc.connection
 import io.github.sibmaks.spring.jfr.event.recording.tracing.pool.jdbc.connection.action.ConnectionActionRequestedEvent;
 import io.github.sibmaks.spring.jfr.event.recording.tracing.pool.jdbc.connection.action.ConnectionActionSucceedEvent;
 import lombok.AllArgsConstructor;
-import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
+import org.springframework.aop.framework.Advised;
+import org.springframework.aop.framework.ProxyFactory;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -51,8 +52,14 @@ class ConnectionInvocationHandler implements InvocationHandler {
             case "prepareStatement":
             case "prepareCall": {
                 var statement = method.invoke(realConnection, args);
-                var proxyFactory = new AspectJProxyFactory(statement);
-                proxyFactory.addAspect(new ConnectionStatementJavaFlightRecorderAspect(connectionId, actionCounter));
+                var advice = new ConnectionStatementJavaFlightRecorderAdvice(connectionId, actionCounter);
+                if (statement instanceof Advised) {
+                    var advised = (Advised) statement;
+                    advised.addAdvice(advice);
+                    return statement;
+                }
+                var proxyFactory = new ProxyFactory(statement);
+                proxyFactory.addAdvice(advice);
                 return proxyFactory.getProxy();
             }
             case "setTransactionIsolation": {
