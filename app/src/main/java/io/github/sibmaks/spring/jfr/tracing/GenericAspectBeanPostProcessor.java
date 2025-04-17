@@ -47,7 +47,8 @@ public abstract class GenericAspectBeanPostProcessor implements BeanPostProcesso
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) {
-        var type = AopProxyUtils.ultimateTargetClass(bean);
+        var type = getActualBeanType(bean);
+
         if (!isAspectBean(bean, type, beanName)) {
             return bean;
         }
@@ -60,6 +61,10 @@ public abstract class GenericAspectBeanPostProcessor implements BeanPostProcesso
         }
 
         return bean;
+    }
+
+    protected Class<?> getActualBeanType(Object bean) {
+        return AopProxyUtils.ultimateTargetClass(bean);
     }
 
     private Object buildProxy(Object bean, Class<?> type) {
