@@ -6,14 +6,13 @@ import io.github.sibmaks.spring.jfr.event.recording.tracing.pool.jdbc.connection
 import io.github.sibmaks.spring.jfr.event.recording.tracing.pool.jdbc.connection.action.ConnectionActionSucceedEvent;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
-public class ConnectionStatementJavaFlightRecorderAdvice implements Advice, MethodInterceptor {
+public class ConnectionStatementJavaFlightRecorderAdvice implements MethodInterceptor {
     private final String connectionId;
     private final AtomicLong actionCounter;
 

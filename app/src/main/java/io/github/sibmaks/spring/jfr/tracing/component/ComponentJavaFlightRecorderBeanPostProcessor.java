@@ -3,7 +3,6 @@ package io.github.sibmaks.spring.jfr.tracing.component;
 import io.github.sibmaks.spring.jfr.JavaFlightRecorderRecordCounter;
 import io.github.sibmaks.spring.jfr.tracing.GenericAspectBeanPostProcessor;
 import org.aopalliance.aop.Advice;
-import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -30,6 +29,6 @@ public class ComponentJavaFlightRecorderBeanPostProcessor extends GenericAspectB
 
     @Override
     protected Advice buildAdvice(Object bean, Class<?> type) {
-        return new ComponentJavaFlightRecorderAspect(type.getName(), contextId, flightRecorderRecordCounter);
+        return new ComponentJavaFlightRecorderAdvice(type.getName(), contextId, flightRecorderRecordCounter);
     }
 }

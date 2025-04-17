@@ -2,9 +2,7 @@ package io.github.sibmaks.spring.jfr.tracing.controller.rest;
 
 import io.github.sibmaks.spring.jfr.JavaFlightRecorderRecordCounter;
 import io.github.sibmaks.spring.jfr.tracing.GenericAspectBeanPostProcessor;
-import io.github.sibmaks.spring.jfr.tracing.controller.ControllerJavaFlightRecorderAspect;
 import org.aopalliance.aop.Advice;
-import org.aspectj.lang.annotation.Aspect;
 
 import java.util.List;
 
@@ -28,6 +26,6 @@ public class RestControllerJavaFlightRecorderBeanPostProcessor extends GenericAs
 
     @Override
     protected Advice buildAdvice(Object bean, Class<?> type) {
-        return new RestControllerJavaFlightRecorderAspect(type.getName(), contextId, flightRecorderRecordCounter);
+        return new RestControllerJavaFlightRecorderAdvice(type.getName(), contextId, flightRecorderRecordCounter);
     }
 }

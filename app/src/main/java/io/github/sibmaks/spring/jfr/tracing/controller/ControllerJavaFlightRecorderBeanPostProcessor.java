@@ -26,6 +26,6 @@ public class ControllerJavaFlightRecorderBeanPostProcessor extends GenericAspect
 
     @Override
     protected Advice buildAdvice(Object bean, Class<?> type) {
-        return new ControllerJavaFlightRecorderAspect(type.getName(), contextId, flightRecorderRecordCounter);
+        return new ControllerJavaFlightRecorderAdvice(type.getName(), contextId, flightRecorderRecordCounter);
     }
 }

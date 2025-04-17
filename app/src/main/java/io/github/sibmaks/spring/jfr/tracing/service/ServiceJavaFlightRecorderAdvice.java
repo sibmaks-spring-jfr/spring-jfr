@@ -5,10 +5,8 @@ import io.github.sibmaks.spring.jfr.core.InvocationContext;
 import io.github.sibmaks.spring.jfr.event.recording.tracing.service.ServiceMethodCalledEvent;
 import io.github.sibmaks.spring.jfr.event.recording.tracing.service.ServiceMethodExecutedEvent;
 import io.github.sibmaks.spring.jfr.event.recording.tracing.service.ServiceMethodFailedEvent;
-import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Service;
 
 /**
@@ -17,13 +15,12 @@ import org.springframework.stereotype.Service;
  * @author sibmaks
  * @since 0.0.10
  */
-@Aspect
-public class ServiceJavaFlightRecorderAspect implements Advice, MethodInterceptor {
+public class ServiceJavaFlightRecorderAdvice implements MethodInterceptor {
     private final String className;
     private final String contextId;
     private final JavaFlightRecorderRecordCounter flightRecorderRecordCounter;
 
-    public ServiceJavaFlightRecorderAspect(
+    public ServiceJavaFlightRecorderAdvice(
             String className,
             String contextId,
             JavaFlightRecorderRecordCounter flightRecorderRecordCounter

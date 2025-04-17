@@ -5,13 +5,12 @@ import io.github.sibmaks.spring.jfr.core.InvocationContext;
 import io.github.sibmaks.spring.jfr.event.recording.tracing.jpa.JPAMethodCalledEvent;
 import io.github.sibmaks.spring.jfr.event.recording.tracing.jpa.JPAMethodExecutedEvent;
 import io.github.sibmaks.spring.jfr.event.recording.tracing.jpa.JPAMethodFailedEvent;
-import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.annotation.Aspect;
 
 @Aspect
-public class JpaRepositoryJavaFlightRecorderAspect implements Advice, MethodInterceptor {
+public class JpaRepositoryJavaFlightRecorderAspect implements MethodInterceptor {
     private final String className;
     private final String contextId;
     private final JavaFlightRecorderRecordCounter flightRecorderRecordCounter;
