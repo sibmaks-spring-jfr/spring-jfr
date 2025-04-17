@@ -3,6 +3,8 @@ package io.github.sibmaks.spring.jfr.tracing.jpa;
 import io.github.sibmaks.spring.jfr.JavaFlightRecorderRecordCounter;
 import io.github.sibmaks.spring.jfr.tracing.GenericAspectBeanPostProcessor;
 import org.aopalliance.aop.Advice;
+import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -26,6 +28,15 @@ public class JpaRepositoryJavaFlightRecorderBeanPostProcessor extends GenericAsp
 
     @Override
     protected Advice buildAdvice(Object bean, Class<?> type) {
-        return new JpaRepositoryJavaFlightRecorderAspect(type.getName(), contextId, flightRecorderRecordCounter);
+        return new JpaRepositoryJavaFlightRecorderAdvice(type.getName(), contextId, flightRecorderRecordCounter);
+    }
+
+    @Override
+    protected boolean isAspectBean(Object bean, Class<?> type, String beanName) {
+        var hasAnnotation = AnnotatedElementUtils.hasAnnotation(type, Repository.class);
+        if(hasAnnotation) {
+            return true;
+        }
+        return org.springframework.data.repository.Repository.class.isAssignableFrom(bean.getClass());
     }
 }

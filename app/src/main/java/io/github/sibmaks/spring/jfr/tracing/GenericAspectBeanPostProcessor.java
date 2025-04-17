@@ -1,10 +1,13 @@
 package io.github.sibmaks.spring.jfr.tracing;
 
+import lombok.Setter;
 import org.aopalliance.aop.Advice;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.aop.framework.Advised;
+import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.aop.framework.ProxyFactory;
-import org.springframework.aop.support.AopUtils;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
 import java.util.List;
@@ -14,39 +17,15 @@ import java.util.List;
  * @since 0.0.27
  */
 @Aspect
-public abstract class GenericAspectBeanPostProcessor implements BeanPostProcessor {
+public abstract class GenericAspectBeanPostProcessor implements BeanPostProcessor, BeanFactoryAware {
     protected final List<String> filters;
+    @Setter
+    protected BeanFactory beanFactory;
 
-    public GenericAspectBeanPostProcessor(List<String> filters) {
+    public GenericAspectBeanPostProcessor(
+            List<String> filters
+    ) {
         this.filters = filters;
-    }
-
-    @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) {
-        var type = AopUtils.getTargetClass(bean);
-
-        for (var entry : filters) {
-            if (!matchesBean(type, entry)) {
-                continue;
-            }
-            return buildProxy(bean, type);
-        }
-
-        return bean;
-    }
-
-    private Object buildProxy(Object bean, Class<?> type) {
-        var advice = buildAdvice(bean, type);
-        if(bean instanceof Advised) {
-            var advised = (Advised) bean;
-            advised.addAdvice(advice);
-            return bean;
-        }
-
-        var proxyFactory = new ProxyFactory(bean);
-        proxyFactory.setProxyTargetClass(!type.isInterface());
-        proxyFactory.addAdvice(advice);
-        return proxyFactory.getProxy();
     }
 
     /**
@@ -66,5 +45,38 @@ public abstract class GenericAspectBeanPostProcessor implements BeanPostProcesso
         return className.startsWith(packagePath + ".");
     }
 
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) {
+        var type = AopProxyUtils.ultimateTargetClass(bean);
+        if (!isAspectBean(bean, type, beanName)) {
+            return bean;
+        }
+
+        for (var entry : filters) {
+            if (!matchesBean(type, entry)) {
+                continue;
+            }
+            return buildProxy(bean, type);
+        }
+
+        return bean;
+    }
+
+    private Object buildProxy(Object bean, Class<?> type) {
+        var advice = buildAdvice(bean, type);
+        if (bean instanceof Advised) {
+            var advised = (Advised) bean;
+            advised.addAdvice(advice);
+            return bean;
+        }
+
+        var proxyFactory = new ProxyFactory(bean);
+        proxyFactory.setProxyTargetClass(!type.isInterface());
+        proxyFactory.addAdvice(advice);
+        return proxyFactory.getProxy();
+    }
+
     protected abstract Advice buildAdvice(Object bean, Class<?> type);
+
+    protected abstract boolean isAspectBean(Object bean, Class<?> type, String beanName);
 }
