@@ -5,6 +5,7 @@ import io.github.sibmaks.spring.jfr.tracing.GenericAspectBeanPostProcessor;
 import org.aopalliance.aop.Advice;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -33,6 +34,7 @@ public class ControllerJavaFlightRecorderBeanPostProcessor extends GenericAspect
 
     @Override
     protected boolean isAspectBean(Object bean, Class<?> type, String beanName) {
-        return AnnotatedElementUtils.hasAnnotation(type, Controller.class);
+        return AnnotatedElementUtils.hasAnnotation(type, Controller.class) &&
+                !AnnotatedElementUtils.hasAnnotation(type, RestController.class);
     }
 }
