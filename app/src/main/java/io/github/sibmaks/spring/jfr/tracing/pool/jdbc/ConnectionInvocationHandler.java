@@ -6,8 +6,8 @@ import io.github.sibmaks.spring.jfr.event.recording.tracing.pool.jdbc.connection
 import io.github.sibmaks.spring.jfr.event.recording.tracing.pool.jdbc.connection.action.ConnectionActionRequestedEvent;
 import io.github.sibmaks.spring.jfr.event.recording.tracing.pool.jdbc.connection.action.ConnectionActionSucceedEvent;
 import lombok.AllArgsConstructor;
+import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
 import org.springframework.aop.framework.Advised;
-import org.springframework.aop.framework.ProxyFactory;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -58,7 +58,7 @@ class ConnectionInvocationHandler implements InvocationHandler {
                     advised.addAdvice(advice);
                     return statement;
                 }
-                var proxyFactory = new ProxyFactory(statement);
+                var proxyFactory = new AspectJProxyFactory(statement);
                 proxyFactory.addAdvice(advice);
                 return proxyFactory.getProxy();
             }

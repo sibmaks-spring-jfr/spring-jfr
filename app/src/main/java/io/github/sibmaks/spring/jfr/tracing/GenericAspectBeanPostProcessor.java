@@ -3,9 +3,9 @@ package io.github.sibmaks.spring.jfr.tracing;
 import lombok.Setter;
 import org.aopalliance.aop.Advice;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.framework.AopProxyUtils;
-import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -70,7 +70,7 @@ public abstract class GenericAspectBeanPostProcessor implements BeanPostProcesso
             return bean;
         }
 
-        var proxyFactory = new ProxyFactory(bean);
+        var proxyFactory = new AspectJProxyFactory(bean);
         proxyFactory.setProxyTargetClass(!type.isInterface());
         proxyFactory.addAdvice(advice);
         return proxyFactory.getProxy();
