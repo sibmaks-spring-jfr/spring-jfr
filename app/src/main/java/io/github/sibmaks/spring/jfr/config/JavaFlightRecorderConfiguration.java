@@ -13,7 +13,7 @@ import io.github.sibmaks.spring.jfr.tracing.async.AsyncJavaFlightRecorderAspect;
 import io.github.sibmaks.spring.jfr.tracing.component.ComponentJavaFlightRecorderBeanPostProcessor;
 import io.github.sibmaks.spring.jfr.tracing.controller.ControllerJavaFlightRecorderBeanPostProcessor;
 import io.github.sibmaks.spring.jfr.tracing.controller.rest.RestControllerJavaFlightRecorderBeanPostProcessor;
-import io.github.sibmaks.spring.jfr.tracing.jpa.JpaRepositoryJavaFlightRecorderBeanPostProcessor;
+import io.github.sibmaks.spring.jfr.tracing.jpa.JpaRepositoryJavaFlightRecorderAspect;
 import io.github.sibmaks.spring.jfr.tracing.kafka.consumer.KafkaConsumerFactoryJavaFlightRecorderBeanPostProcessor;
 import io.github.sibmaks.spring.jfr.tracing.pool.jdbc.JavaFlightRecorderHikariDataSourceAspect;
 import io.github.sibmaks.spring.jfr.tracing.pool.jdbc.JavaFlightRecorderHikariDataSourceRegister;
@@ -132,16 +132,11 @@ public class JavaFlightRecorderConfiguration {
                     )
             }
     )
-    public static JpaRepositoryJavaFlightRecorderBeanPostProcessor jpaRepositoryJavaFlightRecorderBeanPostProcessor(
+    public static JpaRepositoryJavaFlightRecorderAspect jpaRepositoryJavaFlightRecorderBeanPostProcessor(
             @Qualifier("javaFlightRecorderContextId") String contextId,
-            @Value("${spring.jfr.instrumentation.jpa-repository.filters}") String rawFilters,
             JavaFlightRecorderRecordCounter flightRecorderRecordCounter
     ) {
-        var filters = Optional.ofNullable(rawFilters)
-                .map(it -> it.split(","))
-                .map(List::of)
-                .orElseGet(List::of);
-        return new JpaRepositoryJavaFlightRecorderBeanPostProcessor(contextId, filters, flightRecorderRecordCounter);
+        return new JpaRepositoryJavaFlightRecorderAspect(contextId, flightRecorderRecordCounter);
     }
 
     @Bean
