@@ -76,7 +76,11 @@ public abstract class GenericAspectBeanPostProcessor implements BeanPostProcesso
         }
 
         var proxyFactory = new AspectJProxyFactory(bean);
-        proxyFactory.setProxyTargetClass(!type.isInterface());
+        if (type.isInterface()) {
+            proxyFactory.addInterface(type);
+        } else {
+            proxyFactory.setProxyTargetClass(true);
+        }
         proxyFactory.addAdvice(advice);
         return proxyFactory.getProxy();
     }
