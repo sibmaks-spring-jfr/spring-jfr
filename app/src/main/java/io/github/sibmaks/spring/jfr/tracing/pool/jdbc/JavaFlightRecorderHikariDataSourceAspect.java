@@ -1,5 +1,6 @@
 package io.github.sibmaks.spring.jfr.tracing.pool.jdbc;
 
+import com.zaxxer.hikari.HikariDataSource;
 import io.github.sibmaks.spring.jfr.JavaFlightRecorderObjectRegistry;
 import io.github.sibmaks.spring.jfr.event.recording.tracing.pool.jdbc.connection.ConnectionRequestedEvent;
 import io.github.sibmaks.spring.jfr.event.recording.tracing.pool.jdbc.connection.ConnectionTransactionLevelSetEvent;
@@ -27,7 +28,7 @@ public class JavaFlightRecorderHikariDataSourceAspect {
     }
 
     @Around("execution(* com.zaxxer.hikari.HikariDataSource.getConnection(..)) && target(dataSource)")
-    public Object aroundGetConnection(ProceedingJoinPoint pjp, Object dataSource) throws Throwable {
+    public Object aroundGetConnection(ProceedingJoinPoint pjp, HikariDataSource dataSource) throws Throwable {
         var realConnection = (Connection) pjp.proceed();
         var connectionId = UUID.randomUUID().toString();
 
