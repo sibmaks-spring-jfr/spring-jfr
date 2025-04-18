@@ -1,7 +1,5 @@
 package io.github.sibmaks.spring.jfr.bean;
 
-import io.github.sibmaks.spring.jfr.Internal;
-import io.github.sibmaks.spring.jfr.core.ContextIdProvider;
 import io.github.sibmaks.spring.jfr.event.core.converter.ArrayConverter;
 import io.github.sibmaks.spring.jfr.event.recording.bean.BeanDefinitionRegisteredEvent;
 import org.springframework.beans.BeansException;
@@ -17,14 +15,13 @@ import java.util.Optional;
  * @author sibmaks
  * @since 0.0.2
  */
-@Internal
 public final class JavaFlightRecorderBeanDefinitionEventProducer implements BeanFactoryPostProcessor {
-    private final ContextIdProvider contextIdProvider;
+    private final String contextId;
 
     public JavaFlightRecorderBeanDefinitionEventProducer(
-            ContextIdProvider contextIdProvider
+            String contextId
     ) {
-        this.contextIdProvider = contextIdProvider;
+        this.contextId = contextId;
     }
 
     private void produce(
@@ -43,7 +40,6 @@ public final class JavaFlightRecorderBeanDefinitionEventProducer implements Bean
         var dependencies = BeanDefinitions.getDependencies(beanFactory, beanName, beanDefinition);
         var scope = BeanDefinitions.getScope(beanDefinition);
 
-        var contextId = contextIdProvider.getContextId();
         BeanDefinitionRegisteredEvent.builder()
                 .contextId(contextId)
                 .scope(scope)
@@ -69,7 +65,6 @@ public final class JavaFlightRecorderBeanDefinitionEventProducer implements Bean
                 .orElseGet(HashSet::new);
 
         var stereotype = BeanDefinitions.getStereotype(beanType);
-        var contextId = contextIdProvider.getContextId();
         var beanClassName = Optional.ofNullable(beanType)
                 .map(Class::getCanonicalName)
                 .orElse(null);
