@@ -6,12 +6,9 @@ import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.annotation.AnnotatedElementUtils;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Repository;
-import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RestController;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -34,25 +31,48 @@ public final class BeanDefinitions {
         if (beanType == null) {
             return Stereotype.UNKNOWN;
         }
-        if (AnnotatedElementUtils.hasAnnotation(beanType, RestController.class)) {
+        if (hasAnnotation(beanType, "org.springframework.web.bind.annotation.RestController")) {
             return Stereotype.REST_CONTROLLER;
         }
-        if (AnnotatedElementUtils.hasAnnotation(beanType, Controller.class)) {
+        if (hasAnnotation(beanType, "org.springframework.stereotype.Controller")) {
             return Stereotype.CONTROLLER;
         }
-        if (AnnotatedElementUtils.hasAnnotation(beanType, Service.class)) {
+        if (hasAnnotation(beanType, "org.springframework.stereotype.Service")) {
             return Stereotype.SERVICE;
         }
-        if (AnnotatedElementUtils.hasAnnotation(beanType, Repository.class)) {
+        if (hasAnnotation(beanType, "org.springframework.stereotype.Repository")) {
             return Stereotype.REPOSITORY;
         }
         if (org.springframework.data.repository.Repository.class.isAssignableFrom(beanType)) {
             return Stereotype.REPOSITORY;
         }
-        if (AnnotatedElementUtils.hasAnnotation(beanType, Component.class)) {
+        if (hasAnnotation(beanType, "org.springframework.stereotype.Component")) {
             return Stereotype.COMPONENT;
         }
         return Stereotype.UNKNOWN;
+    }
+
+    /**
+     * Determine if an annotation of the specified {@code annotationTypeName}
+     * is <em>available</em> on the supplied {@link AnnotatedElement} or
+     * within the annotation hierarchy <em>above</em> the specified element.
+     *
+     * <p>If the annotation class is not present at runtime, then assume that the class being checked does not have the specified annotation.</p>
+     *
+     * <p>This method follows <em>find semantics</em> as described in the
+     * {@linkplain AnnotatedElementUtils class-level javadoc}.
+     *
+     * @param element            the annotated element
+     * @param annotationTypeName the annotation type name to find
+     * @return {@code true} if a matching annotation is present
+     */
+    public static boolean hasAnnotation(AnnotatedElement element, String annotationTypeName) {
+        try {
+            var annotationType = (Class<? extends Annotation>) Class.forName(annotationTypeName);
+            return AnnotatedElementUtils.hasAnnotation(element, annotationType);
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
     /**
