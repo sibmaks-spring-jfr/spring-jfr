@@ -43,7 +43,7 @@ public final class BeanDefinitions {
         if (hasAnnotation(beanType, "org.springframework.stereotype.Repository")) {
             return Stereotype.REPOSITORY;
         }
-        if (org.springframework.data.repository.Repository.class.isAssignableFrom(beanType)) {
+        if (isAssignableFrom("org.springframework.data.repository.Repository", beanType)) {
             return Stereotype.REPOSITORY;
         }
         if (hasAnnotation(beanType, "org.springframework.stereotype.Component")) {
@@ -70,6 +70,22 @@ public final class BeanDefinitions {
         try {
             var annotationType = (Class<? extends Annotation>) Class.forName(annotationTypeName);
             return AnnotatedElementUtils.hasAnnotation(element, annotationType);
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Check is class name exists in runtime and assignable from {@code beanType}.
+     *
+     * @param className class name
+     * @param beanType  bean type
+     * @return true - assignable, false - otherwise
+     */
+    public static boolean isAssignableFrom(String className, Class<?> beanType) {
+        try {
+            var toClassName = Class.forName(className);
+            return toClassName.isAssignableFrom(beanType);
         } catch (ClassNotFoundException e) {
             return false;
         }
